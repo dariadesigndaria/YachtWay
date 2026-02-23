@@ -214,6 +214,45 @@ const reorderItems = <T,>(list: T[], fromIndex: number, toIndex: number): T[] =>
   return next;
 };
 
+const getDropdownItemsForPhotoIndex = (photoIndex: number): DropdownItem[] => {
+  const filtered = dropdownItems.filter((item) => {
+    if (item.type === 'divider') {
+      return true;
+    }
+
+    if (photoIndex === 0 && item.action === 'set-cover') {
+      return false;
+    }
+
+    if (photoIndex <= 1 && item.action === 'move-top') {
+      return false;
+    }
+
+    return true;
+  });
+
+  const normalized: DropdownItem[] = [];
+  filtered.forEach((item) => {
+    if (item.type === 'divider') {
+      if (normalized.length === 0) {
+        return;
+      }
+
+      if (normalized[normalized.length - 1].type === 'divider') {
+        return;
+      }
+    }
+
+    normalized.push(item);
+  });
+
+  if (normalized[normalized.length - 1]?.type === 'divider') {
+    normalized.pop();
+  }
+
+  return normalized;
+};
+
 export default function Page() {
   const [photos, setPhotos] = useState<PhotoCard[]>([]);
   const [isDropActive, setIsDropActive] = useState(false);
@@ -819,6 +858,7 @@ export default function Page() {
                     .map((categoryId) => categoryById.get(categoryId))
                     .filter((category): category is CategoryDefinition => Boolean(category));
                   const primaryCategory = assignedCategories[0] ?? null;
+                  const cardDropdownItems = getDropdownItemsForPhotoIndex(index);
 
                   return (
                     <article
@@ -935,7 +975,7 @@ export default function Page() {
 
                       {menuPhotoId === photo.id ? (
                         <div className="photoMenu" role="menu" aria-label="Photo actions">
-                          {dropdownItems.map((item, itemIndex) => {
+                          {cardDropdownItems.map((item, itemIndex) => {
                             if (item.type === 'divider') {
                               return (
                                 <div key={`divider-${itemIndex}`} className="photoMenuDividerWrap">
