@@ -112,7 +112,7 @@ button {
   align-items: center;
   background: #ffffff33;
   border-radius: 4px;
-  color: #ffffff;
+  color: #fff;
   display: flex;
   height: 28px;
   justify-content: center;
@@ -227,6 +227,19 @@ button {
   overflow: auto;
   padding: 64px 40px 56px;
   position: relative;
+}
+
+.draftExitButton.MuiButton-root {
+  border-color: #c7c8cc !important;
+  color: #3c3c46 !important;
+  font-size: 14px !important;
+  font-weight: 500 !important;
+  height: 36px;
+  min-width: 154px;
+  position: absolute;
+  right: 40px;
+  text-transform: none !important;
+  top: 16px;
 }
 
 .mainBlock {
@@ -367,14 +380,89 @@ button {
   text-align: center;
 }
 
+.bulkActionsSticky {
+  position: sticky;
+  top: 0;
+  z-index: 25;
+}
+
+.bulkActionsBar {
+  align-items: center;
+  background: #fff;
+  border: 1px solid #e7e8ea;
+  border-radius: 6px;
+  box-shadow: 0 4px 12px rgb(34 34 34 / 7%);
+  display: flex;
+  justify-content: space-between;
+  min-height: 52px;
+  padding: 8px;
+}
+
+.bulkSelectedButton {
+  align-items: center;
+  background: #f6f1fd;
+  border: 1px solid #ccb9e7;
+  border-radius: 4px;
+  color: #4b0ea3;
+  cursor: pointer;
+  display: inline-flex;
+  font-size: 14px;
+  font-weight: 500;
+  gap: 6px;
+  height: 36px;
+  line-height: 20px;
+  padding: 0 10px;
+}
+
+.bulkSelectedCloseIcon {
+  height: 16px;
+  width: 16px;
+}
+
+.bulkActionGroup {
+  align-items: center;
+  background: #2f2f39;
+  border-radius: 4px;
+  display: inline-flex;
+  gap: 1px;
+  overflow: hidden;
+}
+
+.bulkActionButton {
+  align-items: center;
+  background: transparent;
+  border: 0;
+  color: #fff;
+  cursor: pointer;
+  display: inline-flex;
+  font-size: 14px;
+  font-weight: 500;
+  height: 36px;
+  justify-content: center;
+  line-height: 20px;
+  min-width: 132px;
+  padding: 0 12px;
+}
+
+.bulkActionButton:hover {
+  background: #3c3c46;
+}
+
 .photoGrid {
   display: grid;
   gap: 20px;
   grid-template-columns: repeat(2, minmax(0, 1fr));
+  padding-bottom: 8px;
 }
 
 .photoCardFrame {
+  cursor: grab;
   position: relative;
+  user-select: none;
+}
+
+.photoCardFrame:active {
+  cursor: grabbing;
 }
 
 .photoCardFrame.isDragging {
@@ -386,6 +474,14 @@ button {
   border: 2px solid #f6f6f7;
   border-radius: 4px;
   overflow: hidden;
+  transition:
+    background-color 0.18s ease,
+    border-color 0.18s ease;
+}
+
+.photoCardFrame.isSelected .photoCard {
+  background: #f3edfd;
+  border-color: #ccb9e7;
 }
 
 .photoCardHeader {
@@ -402,13 +498,21 @@ button {
   background: transparent;
   border: 0;
   color: #2f2f39;
-  cursor: default;
+  cursor: pointer;
   display: inline-flex;
   font-size: 14px;
   font-weight: 500;
   gap: 6px;
   line-height: 20px;
   padding: 0;
+}
+
+.addCategoryButton:hover {
+  color: #4b0ea3;
+}
+
+.addCategoryButton:hover .addCategoryIcon {
+  color: #4b0ea3;
 }
 
 .addCategoryIcon {
@@ -435,18 +539,49 @@ button {
   width: 24px;
 }
 
+.photoCategories {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  min-height: 30px;
+  padding: 0 8px 8px;
+}
+
+.photoCategoryChip {
+  align-items: center;
+  background: #ece1fb;
+  border: 1px solid #ccb9e7;
+  border-radius: 999px;
+  color: #4b0ea3;
+  display: inline-flex;
+  font-size: 12px;
+  font-weight: 500;
+  height: 22px;
+  line-height: 18px;
+  padding: 0 8px;
+}
+
 .photoImageWrap {
+  --photo-scale: 1;
   background: #f4f4f4;
   height: 132px;
   overflow: hidden;
   position: relative;
+  transition: background-color 0.18s ease;
+}
+
+.photoCardFrame.isSelected .photoImageWrap {
+  --photo-scale: 0.9;
+  background: #e9dbfb;
 }
 
 .photoImage {
   display: block;
   height: 100%;
   object-fit: cover;
-  transition: transform 0.2s ease;
+  transform: rotate(var(--photo-rotation, 0deg)) scale(var(--photo-scale, 1));
+  transform-origin: center;
+  transition: transform 0.22s ease;
   width: 100%;
 }
 
@@ -465,6 +600,7 @@ button {
   position: absolute;
   right: 8px;
   top: 8px;
+  z-index: 3;
 }
 
 .coverBadgeHint {
@@ -492,15 +628,26 @@ button {
   transition: opacity 0.14s ease;
 }
 
-.photoCard:hover .photoHoverOverlay {
+.photoCard:hover .photoHoverOverlay,
+.photoCardFrame.isSelected .photoHoverOverlay {
   opacity: 1;
 }
 
-.photoHoverAction {
-  bottom: 16px;
+.photoHoverActionButton {
+  align-items: center;
+  background: transparent;
+  border: 0;
+  bottom: 12px;
   color: #fff;
-  left: 12px;
+  cursor: pointer;
+  display: inline-flex;
+  height: 28px;
+  justify-content: center;
+  left: 8px;
+  padding: 0;
+  pointer-events: auto;
   position: absolute;
+  width: 28px;
 }
 
 .photoHoverActionIcon {
@@ -508,18 +655,31 @@ button {
   width: 24px;
 }
 
-.photoHoverCheck {
+.photoHoverCheckButton {
   align-items: center;
-  background: rgb(231 232 234 / 90%);
+  background: rgb(231 232 234 / 92%);
+  border: 0;
   border-radius: 9999px;
   bottom: 12px;
   color: #2f2f39;
+  cursor: pointer;
   display: inline-flex;
   height: 28px;
   justify-content: center;
+  padding: 0;
+  pointer-events: auto;
   position: absolute;
   right: 12px;
+  transition:
+    background-color 0.16s ease,
+    color 0.16s ease;
   width: 28px;
+}
+
+.photoHoverCheckButton.isSelected,
+.photoCardFrame.isSelected .photoHoverCheckButton {
+  background: #4b0ea3;
+  color: #fff;
 }
 
 .photoHoverCheckIcon {
@@ -536,7 +696,7 @@ button {
   right: 0;
   top: 36px;
   width: 180px;
-  z-index: 20;
+  z-index: 40;
 }
 
 .photoMenuItem {
@@ -576,6 +736,427 @@ button {
 .photoMenuDivider {
   background: #f1f1f2;
   height: 1px;
+}
+
+.previewOverlay {
+  align-items: center;
+  backdrop-filter: blur(2px);
+  background: rgb(13 12 16 / 92%);
+  display: flex;
+  inset: 0;
+  justify-content: center;
+  padding: 32px;
+  position: fixed;
+  z-index: 60;
+}
+
+.previewDialog {
+  align-items: center;
+  display: flex;
+  justify-content: center;
+  max-height: calc(100vh - 64px);
+  max-width: min(1240px, calc(100vw - 64px));
+  min-width: 860px;
+  position: relative;
+  width: 100%;
+}
+
+.previewFigure {
+  display: flex;
+  flex-direction: column;
+  margin: 0;
+  max-height: calc(100vh - 120px);
+  max-width: 100%;
+}
+
+.previewImage {
+  background: #111018;
+  border-radius: 8px;
+  height: min(76vh, 820px);
+  max-width: min(88vw, 1040px);
+  object-fit: contain;
+  width: min(88vw, 1040px);
+}
+
+.previewCaption {
+  align-items: center;
+  color: #fff;
+  display: flex;
+  justify-content: space-between;
+  margin-top: 12px;
+}
+
+.previewName {
+  font-size: 14px;
+  line-height: 20px;
+}
+
+.previewCount {
+  color: #c7c8cc;
+  font-size: 12px;
+  line-height: 18px;
+}
+
+.previewCloseButton {
+  align-items: center;
+  background: rgb(255 255 255 / 14%);
+  border: 0;
+  border-radius: 999px;
+  color: #fff;
+  cursor: pointer;
+  display: inline-flex;
+  height: 36px;
+  justify-content: center;
+  position: absolute;
+  right: 0;
+  top: -48px;
+  width: 36px;
+}
+
+.previewCloseIcon {
+  height: 18px;
+  width: 18px;
+}
+
+.previewNavButton {
+  align-items: center;
+  background: rgb(255 255 255 / 14%);
+  border: 0;
+  border-radius: 999px;
+  color: #fff;
+  cursor: pointer;
+  display: inline-flex;
+  height: 44px;
+  justify-content: center;
+  position: absolute;
+  top: calc(50% - 22px);
+  width: 44px;
+}
+
+.previewNavPrev {
+  left: 12px;
+}
+
+.previewNavNext {
+  right: 12px;
+}
+
+.previewNavIcon {
+  height: 24px;
+  width: 24px;
+}
+
+.categoryModalOverlay {
+  align-items: center;
+  background: rgb(33 32 39 / 72%);
+  display: flex;
+  inset: 0;
+  justify-content: center;
+  padding: 24px;
+  position: fixed;
+  z-index: 70;
+}
+
+.categoryModal {
+  background: #fff;
+  border-radius: 8px;
+  box-shadow: 0 24px 48px rgb(34 34 34 / 18%);
+  display: flex;
+  flex-direction: column;
+  height: min(86vh, 760px);
+  max-width: min(820px, 100%);
+  overflow: hidden;
+  width: 820px;
+}
+
+.categoryModalHeader {
+  align-items: flex-start;
+  border-bottom: 1px solid #f1f1f2;
+  display: flex;
+  justify-content: space-between;
+  padding: 18px 20px 16px;
+}
+
+.categoryModalEyebrow {
+  color: #8c8c92;
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 18px;
+  margin: 0;
+}
+
+.categoryModalTitle {
+  color: #2f2f39;
+  font-size: 20px;
+  font-weight: 600;
+  line-height: 30px;
+  margin: 2px 0 0;
+}
+
+.categoryModalCloseButton {
+  align-items: center;
+  background: transparent;
+  border: 0;
+  color: #61616b;
+  cursor: pointer;
+  display: inline-flex;
+  height: 28px;
+  justify-content: center;
+  width: 28px;
+}
+
+.categoryModalCloseIcon {
+  height: 20px;
+  width: 20px;
+}
+
+.categoryTabs {
+  border-bottom: 1px solid #f1f1f2;
+  display: flex;
+  gap: 8px;
+  padding: 12px 20px;
+}
+
+.categoryTab {
+  align-items: center;
+  background: #f8f8f9;
+  border: 1px solid transparent;
+  border-radius: 999px;
+  color: #61616b;
+  cursor: pointer;
+  display: inline-flex;
+  font-size: 14px;
+  font-weight: 500;
+  gap: 6px;
+  height: 32px;
+  line-height: 20px;
+  padding: 0 12px;
+}
+
+.categoryTab.isActive {
+  background: #fcfafe;
+  border-color: #ccb9e7;
+  color: #4b0ea3;
+}
+
+.categoryTabIcon {
+  height: 18px;
+  width: 18px;
+}
+
+.categoryGrid {
+  display: grid;
+  gap: 12px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  overflow: auto;
+  padding: 16px 20px;
+}
+
+.categoryCard {
+  align-items: center;
+  background: #fff;
+  border: 1px solid #e7e8ea;
+  border-radius: 6px;
+  cursor: pointer;
+  display: flex;
+  justify-content: space-between;
+  min-height: 78px;
+  padding: 10px;
+  text-align: left;
+  transition:
+    border-color 0.14s ease,
+    background-color 0.14s ease;
+  width: 100%;
+}
+
+.categoryCard:hover {
+  border-color: #c7c8cc;
+}
+
+.categoryCard.isSelected {
+  background: #fcfafe;
+  border-color: #4b0ea3;
+}
+
+.categoryCardMain {
+  align-items: center;
+  display: flex;
+  gap: 10px;
+  min-width: 0;
+}
+
+.categoryCardIconWrap {
+  align-items: center;
+  background: #f8f8f9;
+  border-radius: 4px;
+  color: #61616b;
+  display: inline-flex;
+  flex-shrink: 0;
+  height: 50px;
+  justify-content: center;
+  width: 50px;
+}
+
+.categoryCardIcon {
+  height: 24px;
+  width: 24px;
+}
+
+.categoryCardPreview {
+  border-radius: 4px;
+  height: 50px;
+  object-fit: cover;
+  width: 50px;
+}
+
+.categoryCardText {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.categoryCardTitle {
+  color: #2f2f39;
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 20px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.categoryCardSubtitle {
+  color: #8c8c92;
+  font-size: 12px;
+  line-height: 18px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.categoryCardEye {
+  align-items: center;
+  background: #f8f8f9;
+  border-radius: 999px;
+  color: #61616b;
+  display: inline-flex;
+  flex-shrink: 0;
+  height: 28px;
+  justify-content: center;
+  width: 28px;
+}
+
+.categoryCardEyeIcon {
+  height: 18px;
+  width: 18px;
+}
+
+.categoryDetail {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  overflow: hidden;
+  padding: 14px 20px 0;
+}
+
+.categoryDetailHeader {
+  margin-bottom: 10px;
+}
+
+.categoryDetailTitle {
+  color: #2f2f39;
+  font-size: 16px;
+  font-weight: 600;
+  line-height: 24px;
+  margin: 0;
+}
+
+.categoryDetailSubtitle {
+  color: #8c8c92;
+  font-size: 12px;
+  line-height: 18px;
+  margin: 2px 0 0;
+}
+
+.categoryDetailGrid {
+  display: grid;
+  gap: 10px;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  overflow: auto;
+  padding: 2px 0 16px;
+}
+
+.categoryDetailPhoto {
+  background: #f8f8f9;
+  border-radius: 4px;
+  height: 120px;
+  overflow: hidden;
+}
+
+.categoryDetailPhoto img {
+  display: block;
+  height: 100%;
+  object-fit: cover;
+  width: 100%;
+}
+
+.categoryDetailEmpty {
+  color: #8c8c92;
+  font-size: 14px;
+  line-height: 20px;
+  margin: 16px 0;
+}
+
+.categoryModalActions {
+  align-items: center;
+  border-top: 1px solid #f1f1f2;
+  display: flex;
+  justify-content: space-between;
+  margin-top: auto;
+  padding: 12px 20px;
+}
+
+.categoryBackButton {
+  background: transparent;
+  border: 0;
+  color: #61616b;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  height: 36px;
+  line-height: 20px;
+  padding: 0;
+}
+
+.categoryBackButton.isHidden {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.categoryAssignButton {
+  background: #4b0ea3;
+  border: 1px solid #ffffff33;
+  border-radius: 4px;
+  color: #fff;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  height: 36px;
+  line-height: 20px;
+  min-width: 142px;
+  padding: 0 12px;
+}
+
+.categoryAssignButton:hover {
+  background: #5a1bb4;
+}
+
+.categoryAssignButton:disabled {
+  background: #c7c8cc;
+  border-color: #c7c8cc;
+  color: #fff;
+  cursor: not-allowed;
 }
 
 .navigationRow {
@@ -619,96 +1200,57 @@ button {
   background: #5a1bb4 !important;
 }
 
-.draftExitButton.MuiButton-root {
-  border: 1px solid #2f2f39 !important;
-  border-radius: 4px !important;
-  color: #2f2f39 !important;
-  font-size: 16px !important;
-  font-weight: 500 !important;
-  height: 40px;
-  min-width: 189px;
-  padding: 0 20px !important;
-  position: absolute;
-  right: 40px;
-  text-transform: none !important;
-  top: 32px;
+@media (max-width: 1280px) {
+  .sidebar {
+    min-width: 280px;
+    width: 280px;
+  }
+
+  .mainSection {
+    padding: 64px 24px 48px;
+  }
+
+  .mainBlock,
+  .dropZone {
+    width: 100%;
+  }
+
+  .previewDialog {
+    min-width: 0;
+  }
 }
 
-@media (max-width: 1200px) {
+@media (max-width: 960px) {
   .uploadPage {
-    flex-direction: column;
+    display: block;
     height: auto;
     min-height: 100vh;
-    overflow: auto;
   }
 
   .sidebar {
     min-width: 100%;
-    padding: 84px 20px 24px;
+    padding-bottom: 70px;
     width: 100%;
-  }
-
-  .sidebarLogo {
-    left: 20px;
   }
 
   .sidebarFooter {
-    bottom: 20px;
-    left: 20px;
+    bottom: 28px;
   }
 
   .mainSection {
-    align-items: center;
-    flex-direction: column;
-    overflow: visible;
-    padding: 20px 16px 32px;
+    padding: 24px 16px 32px;
   }
 
   .draftExitButton.MuiButton-root {
-    align-self: flex-end;
-    margin-bottom: 16px;
     position: static;
+    width: fit-content;
   }
 
   .mainBlock {
-    width: min(564px, 100%);
-  }
-
-  .dropZone {
-    width: 100%;
-  }
-}
-
-@media (max-width: 640px) {
-  .sidebar {
-    padding-top: 76px;
-  }
-
-  .sidebarStep {
-    min-height: 30px;
-  }
-
-  .stepIconWrap {
-    height: 24px;
-    width: 24px;
-  }
-
-  .stepIcon {
-    height: 20px;
-    width: 20px;
-  }
-
-  .stepLabel {
-    font-size: 15px;
-    line-height: 24px;
-  }
-
-  .stepActions {
-    display: none;
+    gap: 24px;
   }
 
   .uploadHeader {
-    align-items: flex-start;
     flex-direction: column;
     gap: 12px;
   }
@@ -717,12 +1259,46 @@ button {
     grid-template-columns: 1fr;
   }
 
-  .navigationRow {
-    flex-wrap: wrap;
-    gap: 12px;
+  .bulkActionsBar {
+    align-items: stretch;
+    flex-direction: column;
+    gap: 8px;
   }
 
-  .nextButton.MuiButton-root {
-    min-width: 100%;
+  .bulkSelectedButton {
+    justify-content: center;
+    width: 100%;
+  }
+
+  .bulkActionGroup {
+    display: flex;
+    width: 100%;
+  }
+
+  .bulkActionButton {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .categoryModal {
+    height: min(90vh, 760px);
+    width: 100%;
+  }
+
+  .categoryGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .categoryDetailGrid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .previewOverlay {
+    padding: 16px;
+  }
+
+  .previewImage {
+    height: min(70vh, 700px);
+    width: min(92vw, 980px);
   }
 }
