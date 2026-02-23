@@ -488,11 +488,28 @@ button {
   width: 18px;
 }
 
+.photoGridWrap {
+  position: relative;
+}
+
+.photoGridWrap.isSelecting {
+  cursor: crosshair;
+}
+
 .photoGrid {
   display: grid;
   gap: 20px;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   padding-bottom: 8px;
+}
+
+.selectionMarquee {
+  background: rgb(75 14 163 / 8%);
+  border: 1px dashed #4b0ea3;
+  border-radius: 4px;
+  pointer-events: none;
+  position: absolute;
+  z-index: 30;
 }
 
 .photoCardFrame {

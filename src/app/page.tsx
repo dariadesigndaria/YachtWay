@@ -1,7 +1,7 @@
 'use client';
 
-import type { ChangeEvent, CSSProperties, DragEvent } from 'react';
-import { useEffect, useMemo, useRef, useState } from 'react';
+import type { ChangeEvent, CSSProperties, DragEvent, PointerEvent as ReactPointerEvent } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 import { Button } from '@yachtway/design-system/src/components/common/button';
 import {
@@ -41,6 +41,13 @@ type CategoryDefinition = {
   id: string;
   label: string;
   tab: CategoryTab;
+};
+
+type SelectionBox = {
+  height: number;
+  left: number;
+  top: number;
+  width: number;
 };
 
 type DropdownItem =
@@ -266,13 +273,17 @@ export default function Page() {
   const [categoryDetailId, setCategoryDetailId] = useState<string | null>(null);
   const [categoryTargetPhotoIds, setCategoryTargetPhotoIds] = useState<string[]>([]);
   const [isBulkStickyPinned, setIsBulkStickyPinned] = useState(false);
+  const [selectionBox, setSelectionBox] = useState<SelectionBox | null>(null);
 
   const inputRef = useRef<HTMLInputElement>(null);
   const dragDepthRef = useRef(0);
   const objectUrlsRef = useRef<Set<string>>(new Set());
   const mainSectionRef = useRef<HTMLElement>(null);
   const bulkStickyRef = useRef<HTMLDivElement>(null);
+  const photoGridRef = useRef<HTMLDivElement>(null);
   const suppressCardClickRef = useRef(false);
+  const isMarqueeSelectingRef = useRef(false);
+  const marqueeStartRef = useRef<{ x: number; y: number } | null>(null);
 
   const categoryById = useMemo(() => {
     return new Map(categoryDefinitions.map((category) => [category.id, category]));
@@ -404,6 +415,49 @@ export default function Page() {
     return Array.from(map.values());
   }, [categoryDetailId, categoryTargetPhotoIds, detailCategoryPhotos, photos]);
 
+  const updateMarqueeSelection = useCallback((startX: number, startY: number, currentX: number, currentY: number) => {
+    const grid = photoGridRef.current;
+    if (!grid) {
+      return;
+    }
+
+    const gridRect = grid.getBoundingClientRect();
+    const selectionLeft = Math.min(startX, currentX);
+    const selectionTop = Math.min(startY, currentY);
+    const selectionRight = Math.max(startX, currentX);
+    const selectionBottom = Math.max(startY, currentY);
+
+    setSelectionBox({
+      height: selectionBottom - selectionTop,
+      left: selectionLeft - gridRect.left,
+      top: selectionTop - gridRect.top,
+      width: selectionRight - selectionLeft,
+    });
+
+    const nextSelected = new Set<string>();
+    const cards = grid.querySelectorAll<HTMLElement>('[data-photo-id]');
+
+    cards.forEach((card) => {
+      const rect = card.getBoundingClientRect();
+      const intersects =
+        rect.left < selectionRight &&
+        rect.right > selectionLeft &&
+        rect.top < selectionBottom &&
+        rect.bottom > selectionTop;
+
+      if (!intersects) {
+        return;
+      }
+
+      const photoId = card.dataset.photoId;
+      if (photoId) {
+        nextSelected.add(photoId);
+      }
+    });
+
+    setSelectedPhotoIds(nextSelected);
+  }, []);
+
   useEffect(() => {
     const root = mainSectionRef.current;
     if (!root) {
@@ -429,6 +483,43 @@ export default function Page() {
       window.removeEventListener('resize', syncPinnedState);
     };
   }, [selectedPhotoIds.size, photos.length]);
+
+  useEffect(() => {
+    const handlePointerMove = (event: PointerEvent) => {
+      if (!isMarqueeSelectingRef.current || !marqueeStartRef.current) {
+        return;
+      }
+
+      updateMarqueeSelection(
+        marqueeStartRef.current.x,
+        marqueeStartRef.current.y,
+        event.clientX,
+        event.clientY,
+      );
+    };
+
+    const handlePointerUp = () => {
+      if (!isMarqueeSelectingRef.current) {
+        return;
+      }
+
+      isMarqueeSelectingRef.current = false;
+      marqueeStartRef.current = null;
+      setSelectionBox(null);
+
+      requestAnimationFrame(() => {
+        suppressCardClickRef.current = false;
+      });
+    };
+
+    window.addEventListener('pointermove', handlePointerMove);
+    window.addEventListener('pointerup', handlePointerUp);
+
+    return () => {
+      window.removeEventListener('pointermove', handlePointerMove);
+      window.removeEventListener('pointerup', handlePointerUp);
+    };
+  }, [updateMarqueeSelection]);
 
   const appendFiles = (files: FileList | File[]) => {
     const acceptedFiles = Array.from(files).filter(isAcceptedImage);
@@ -482,6 +573,29 @@ export default function Page() {
     inputRef.current?.click();
   };
 
+  const handlePhotoGridPointerDown = (event: ReactPointerEvent<HTMLDivElement>) => {
+    if (event.button !== 0) {
+      return;
+    }
+
+    const target = event.target as HTMLElement;
+    if (target.closest('.photoInteractive') || target.closest('.photoMenu')) {
+      return;
+    }
+
+    const isOnCard = Boolean(target.closest('.photoCardFrame'));
+    if (isOnCard && !event.shiftKey) {
+      return;
+    }
+
+    isMarqueeSelectingRef.current = true;
+    suppressCardClickRef.current = true;
+    marqueeStartRef.current = { x: event.clientX, y: event.clientY };
+    clearPhotoSelection();
+    updateMarqueeSelection(event.clientX, event.clientY, event.clientX, event.clientY);
+    event.preventDefault();
+  };
+
   const handleDropZoneDragEnter = (event: DragEvent<HTMLDivElement>) => {
     event.preventDefault();
     clearPhotoSelection();
@@ -516,7 +630,7 @@ export default function Page() {
 
   const handleCardDragStart = (event: DragEvent<HTMLElement>, photoId: string) => {
     const target = event.target as HTMLElement;
-    if (target.closest('.photoInteractive') || target.closest('.photoMenu')) {
+    if (isMarqueeSelectingRef.current || target.closest('.photoInteractive') || target.closest('.photoMenu')) {
       event.preventDefault();
       return;
     }
@@ -851,43 +965,49 @@ export default function Page() {
             ) : null}
 
             {photos.length > 0 ? (
-              <div className="photoGrid" data-node-id="4452:111255">
-                {photos.map((photo, index) => {
-                  const isSelected = selectedPhotoIds.has(photo.id);
-                  const assignedCategories = photo.categories
-                    .map((categoryId) => categoryById.get(categoryId))
-                    .filter((category): category is CategoryDefinition => Boolean(category));
-                  const primaryCategory = assignedCategories[0] ?? null;
-                  const cardDropdownItems = getDropdownItemsForPhotoIndex(index);
+              <div
+                ref={photoGridRef}
+                className={`photoGridWrap ${selectionBox ? 'isSelecting' : ''}`}
+                onPointerDown={handlePhotoGridPointerDown}
+              >
+                <div className="photoGrid" data-node-id="4452:111255">
+                  {photos.map((photo, index) => {
+                    const isSelected = selectedPhotoIds.has(photo.id);
+                    const assignedCategories = photo.categories
+                      .map((categoryId) => categoryById.get(categoryId))
+                      .filter((category): category is CategoryDefinition => Boolean(category));
+                    const primaryCategory = assignedCategories[0] ?? null;
+                    const cardDropdownItems = getDropdownItemsForPhotoIndex(index);
 
-                  return (
-                    <article
-                      key={photo.id}
-                      className={`photoCardFrame ${draggedPhotoId === photo.id ? 'isDragging' : ''} ${isSelected ? 'isSelected' : ''}`}
-                      draggable
-                      onDragStart={(event) => handleCardDragStart(event, photo.id)}
-                      onDragOver={(event) => handleCardDragOver(event, photo.id)}
-                      onDrop={(event) => handleCardDrop(event, photo.id)}
-                      onDragEnd={() => {
-                        setDraggedPhotoId(null);
-                        requestAnimationFrame(() => {
-                          suppressCardClickRef.current = false;
-                        });
-                      }}
-                      onClick={(event) => {
-                        const target = event.target as HTMLElement;
-                        if (suppressCardClickRef.current) {
-                          return;
-                        }
+                    return (
+                      <article
+                        key={photo.id}
+                        data-photo-id={photo.id}
+                        className={`photoCardFrame ${draggedPhotoId === photo.id ? 'isDragging' : ''} ${isSelected ? 'isSelected' : ''}`}
+                        draggable
+                        onDragStart={(event) => handleCardDragStart(event, photo.id)}
+                        onDragOver={(event) => handleCardDragOver(event, photo.id)}
+                        onDrop={(event) => handleCardDrop(event, photo.id)}
+                        onDragEnd={() => {
+                          setDraggedPhotoId(null);
+                          requestAnimationFrame(() => {
+                            suppressCardClickRef.current = false;
+                          });
+                        }}
+                        onClick={(event) => {
+                          const target = event.target as HTMLElement;
+                          if (suppressCardClickRef.current) {
+                            return;
+                          }
 
-                        if (target.closest('.photoInteractive') || target.closest('.photoMenu')) {
-                          return;
-                        }
+                          if (target.closest('.photoInteractive') || target.closest('.photoMenu')) {
+                            return;
+                          }
 
-                        togglePhotoSelection(photo.id);
-                      }}
-                    >
-                      <div className="photoCard">
+                          togglePhotoSelection(photo.id);
+                        }}
+                      >
+                        <div className="photoCard">
                         <header className="photoCardHeader">
                           <button
                             type="button"
@@ -971,37 +1091,50 @@ export default function Page() {
                             </button>
                           </div>
                         </div>
-                      </div>
-
-                      {menuPhotoId === photo.id ? (
-                        <div className="photoMenu" role="menu" aria-label="Photo actions">
-                          {cardDropdownItems.map((item, itemIndex) => {
-                            if (item.type === 'divider') {
-                              return (
-                                <div key={`divider-${itemIndex}`} className="photoMenuDividerWrap">
-                                  <div className="photoMenuDivider" />
-                                </div>
-                              );
-                            }
-
-                            return (
-                              <button
-                                key={item.action}
-                                type="button"
-                                role="menuitem"
-                                className={`photoMenuItem ${item.destructive ? 'isDestructive' : ''}`}
-                                onClick={() => handleDropdownAction(item.action, photo.id)}
-                              >
-                                <SpriteIcon name={item.icon} className="photoMenuItemIcon" />
-                                <span>{item.label}</span>
-                              </button>
-                            );
-                          })}
                         </div>
-                      ) : null}
-                    </article>
-                  );
-                })}
+
+                        {menuPhotoId === photo.id ? (
+                          <div className="photoMenu" role="menu" aria-label="Photo actions">
+                            {cardDropdownItems.map((item, itemIndex) => {
+                              if (item.type === 'divider') {
+                                return (
+                                  <div key={`divider-${itemIndex}`} className="photoMenuDividerWrap">
+                                    <div className="photoMenuDivider" />
+                                  </div>
+                                );
+                              }
+
+                              return (
+                                <button
+                                  key={item.action}
+                                  type="button"
+                                  role="menuitem"
+                                  className={`photoMenuItem ${item.destructive ? 'isDestructive' : ''}`}
+                                  onClick={() => handleDropdownAction(item.action, photo.id)}
+                                >
+                                  <SpriteIcon name={item.icon} className="photoMenuItemIcon" />
+                                  <span>{item.label}</span>
+                                </button>
+                              );
+                            })}
+                          </div>
+                        ) : null}
+                      </article>
+                    );
+                  })}
+                </div>
+
+                {selectionBox ? (
+                  <span
+                    className="selectionMarquee"
+                    style={{
+                      height: `${selectionBox.height}px`,
+                      left: `${selectionBox.left}px`,
+                      top: `${selectionBox.top}px`,
+                      width: `${selectionBox.width}px`,
+                    }}
+                  />
+                ) : null}
               </div>
             ) : null}
           </section>
