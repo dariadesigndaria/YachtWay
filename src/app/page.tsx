@@ -10,9 +10,11 @@ import {
 } from '@yachtway/design-system/src/components/common/sprite-icon';
 import themeConstants from '@yachtway/design-system/src/theme/constants';
 
+const basePath = process.env.NEXT_PUBLIC_BASE_PATH ?? '';
+
 const assets = {
-  subtract: '/assets/subtract.svg',
-  snowflake: '/assets/snowflake.png',
+  subtract: `${basePath}/assets/subtract.svg`,
+  snowflake: `${basePath}/assets/snowflake.png`,
 };
 
 type StepState = 'done' | 'active' | 'disabled';
