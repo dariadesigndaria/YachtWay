@@ -387,6 +387,15 @@ button {
   z-index: 25;
 }
 
+.bulkActionsSticky.isPinned::before {
+  background: #fff;
+  box-shadow: 0 8px 20px rgb(34 34 34 / 12%);
+  content: '';
+  inset: 0 -100vw;
+  position: absolute;
+  z-index: -1;
+}
+
 .bulkActionsBar {
   align-items: center;
   background: transparent;
@@ -404,10 +413,8 @@ button {
 }
 
 .bulkActionsSticky.isPinned .bulkActionsBar {
-  background: #fff;
-  box-shadow: 0 8px 18px rgb(34 34 34 / 10%);
-  margin: 0 -20px;
-  padding: 10px 20px;
+  margin: 0;
+  padding: 10px 0;
 }
 
 .bulkSelectedButton {
@@ -927,10 +934,10 @@ button {
 }
 
 .categoryModalSubline {
-  color: #8c8c92;
-  font-size: 12px;
-  line-height: 18px;
-  margin: 2px 0 0;
+  color: #3c3c46;
+  font-size: 16px;
+  line-height: 24px;
+  margin: 6px 0 0;
 }
 
 .categoryModalCloseButton {
@@ -953,30 +960,29 @@ button {
 .categoryTabs {
   border-bottom: 1px solid #f1f1f2;
   display: flex;
-  gap: 8px;
-  padding: 12px 20px;
+  gap: 24px;
+  padding: 0 20px;
 }
 
 .categoryTab {
   align-items: center;
-  background: #f8f8f9;
-  border: 1px solid transparent;
-  border-radius: 999px;
+  background: transparent;
+  border: 0;
+  border-bottom: 2px solid transparent;
   color: #61616b;
   cursor: pointer;
   display: inline-flex;
   font-size: 14px;
   font-weight: 500;
   gap: 6px;
-  height: 32px;
+  height: 44px;
   line-height: 20px;
-  padding: 0 12px;
+  padding: 0 0 2px;
 }
 
 .categoryTab.isActive {
-  background: #fcfafe;
-  border-color: #ccb9e7;
-  color: #4b0ea3;
+  border-color: #2f2f39;
+  color: #2f2f39;
 }
 
 .categoryTabIcon {
@@ -987,21 +993,19 @@ button {
 .categoryGrid {
   display: grid;
   gap: 12px;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   overflow: auto;
-  padding: 16px 20px;
+  padding: 18px 20px;
 }
 
 .categoryCard {
-  align-items: center;
   background: #fff;
   border: 1px solid #e7e8ea;
   border-radius: 6px;
   cursor: pointer;
-  display: flex;
-  justify-content: space-between;
-  min-height: 78px;
-  padding: 10px;
+  display: block;
+  min-height: 264px;
+  padding: 0;
   text-align: left;
   transition:
     border-color 0.14s ease,
@@ -1019,34 +1023,44 @@ button {
 }
 
 .categoryCardMain {
-  align-items: center;
+  align-items: stretch;
   display: flex;
+  flex-direction: column;
   gap: 10px;
   min-width: 0;
+  width: 100%;
+}
+
+.categoryCardMedia {
+  background: #f8f8f9;
+  border-radius: 6px 6px 0 0;
+  height: 176px;
+  overflow: hidden;
+  position: relative;
 }
 
 .categoryCardIconWrap {
   align-items: center;
   background: #f8f8f9;
-  border-radius: 4px;
+  border-radius: 0;
   color: #61616b;
   display: inline-flex;
   flex-shrink: 0;
-  height: 50px;
+  height: 100%;
   justify-content: center;
-  width: 50px;
+  width: 100%;
 }
 
 .categoryCardIcon {
-  height: 24px;
-  width: 24px;
+  height: 36px;
+  width: 36px;
 }
 
 .categoryCardPreview {
-  border-radius: 4px;
-  height: 50px;
+  border-radius: 0;
+  height: 100%;
   object-fit: cover;
-  width: 50px;
+  width: 100%;
 }
 
 .categoryCardText {
@@ -1054,6 +1068,7 @@ button {
   flex-direction: column;
   gap: 2px;
   min-width: 0;
+  padding: 0 10px 10px;
 }
 
 .categoryCardTitle {
@@ -1077,14 +1092,17 @@ button {
 
 .categoryCardEye {
   align-items: center;
-  background: #f8f8f9;
-  border-radius: 999px;
-  color: #61616b;
+  background: rgb(95 95 95 / 72%);
+  border-radius: 4px;
+  color: #fff;
   display: inline-flex;
   flex-shrink: 0;
-  height: 28px;
+  height: 44px;
   justify-content: center;
-  width: 28px;
+  position: absolute;
+  right: 0;
+  top: 10px;
+  width: 44px;
 }
 
 .categoryCardEyeIcon {
@@ -1097,12 +1115,12 @@ button {
   flex: 1;
   flex-direction: column;
   overflow: hidden;
-  padding: 14px 20px 0;
+  padding: 16px 20px 0;
 }
 
 .categoryDetailGrid {
   display: grid;
-  gap: 10px;
+  gap: 14px;
   grid-template-columns: repeat(3, minmax(0, 1fr));
   overflow: auto;
   padding: 2px 0 16px;
@@ -1111,7 +1129,7 @@ button {
 .categoryDetailPhoto {
   background: #f8f8f9;
   border-radius: 4px;
-  height: 120px;
+  height: 108px;
   overflow: hidden;
 }
 
@@ -1139,20 +1157,17 @@ button {
 }
 
 .categoryBackButton {
-  background: transparent;
-  border: 0;
-  color: #61616b;
+  background: #fff;
+  border: 1px solid #61616b;
+  border-radius: 4px;
+  color: #2f2f39;
   cursor: pointer;
   font-size: 14px;
   font-weight: 500;
   height: 36px;
   line-height: 20px;
-  padding: 0;
-}
-
-.categoryBackButton.isHidden {
-  opacity: 0;
-  pointer-events: none;
+  min-width: 190px;
+  padding: 0 16px;
 }
 
 .categoryAssignButton {

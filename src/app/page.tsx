@@ -89,13 +89,6 @@ const dropdownItems: DropdownItem[] = [
 
 const categoryDefinitions: CategoryDefinition[] = [
   {
-    id: 'guest-cabin',
-    tab: 'interior',
-    label: 'Guest Cabin',
-    icon: 'bed_outline',
-    emptyHint: 'No photos uploaded yet',
-  },
-  {
     id: 'master-cabin',
     tab: 'interior',
     label: 'Master Cabin',
@@ -103,10 +96,17 @@ const categoryDefinitions: CategoryDefinition[] = [
     emptyHint: 'No photos uploaded yet',
   },
   {
-    id: 'crew-quarters',
+    id: 'engine-room',
     tab: 'interior',
-    label: 'Crew Quarters',
-    icon: 'crew_cabin_outline',
+    label: 'Engine Room',
+    icon: 'engine_outline',
+    emptyHint: 'No photos uploaded yet',
+  },
+  {
+    id: 'guest-cabin',
+    tab: 'interior',
+    label: 'Guest Cabin',
+    icon: 'bed_outline',
     emptyHint: 'No photos uploaded yet',
   },
   {
@@ -117,31 +117,31 @@ const categoryDefinitions: CategoryDefinition[] = [
     emptyHint: 'No photos uploaded yet',
   },
   {
-    id: 'saloon',
+    id: 'main-salon',
     tab: 'interior',
-    label: 'Saloon',
+    label: 'Main Salon',
     icon: 'interior_outline',
     emptyHint: 'No photos uploaded yet',
   },
   {
-    id: 'bathroom',
+    id: 'crew-quarters',
     tab: 'interior',
-    label: 'Bathroom',
-    icon: 'toilet_outline',
+    label: 'Crew Quarters',
+    icon: 'crew_cabin_outline',
     emptyHint: 'No photos uploaded yet',
   },
   {
-    id: 'aft-deck',
+    id: 'bow',
     tab: 'exterior',
-    label: 'Aft Deck',
-    icon: 'deck_outline',
-    emptyHint: 'No photos uploaded yet',
-  },
-  {
-    id: 'bow-area',
-    tab: 'exterior',
-    label: 'Bow Area',
+    label: 'Bow',
     icon: 'anchor_outline',
+    emptyHint: 'No photos uploaded yet',
+  },
+  {
+    id: 'stern',
+    tab: 'exterior',
+    label: 'Stern',
+    icon: 'deck_outline',
     emptyHint: 'No photos uploaded yet',
   },
   {
@@ -152,24 +152,24 @@ const categoryDefinitions: CategoryDefinition[] = [
     emptyHint: 'No photos uploaded yet',
   },
   {
+    id: 'aft-deck',
+    tab: 'exterior',
+    label: 'Aft Deck',
+    icon: 'deck_outline',
+    emptyHint: 'No photos uploaded yet',
+  },
+  {
+    id: 'side-profile',
+    tab: 'exterior',
+    label: 'Side Profile',
+    icon: 'boat_side_outline',
+    emptyHint: 'No photos uploaded yet',
+  },
+  {
     id: 'swim-platform',
     tab: 'exterior',
     label: 'Swim Platform',
     icon: 'fresh_water_outline',
-    emptyHint: 'No photos uploaded yet',
-  },
-  {
-    id: 'engine-room',
-    tab: 'exterior',
-    label: 'Engine Room',
-    icon: 'engine_outline',
-    emptyHint: 'No photos uploaded yet',
-  },
-  {
-    id: 'profile',
-    tab: 'exterior',
-    label: 'Vessel Profile',
-    icon: 'boat_side_outline',
     emptyHint: 'No photos uploaded yet',
   },
 ];
@@ -233,6 +233,7 @@ export default function Page() {
   const objectUrlsRef = useRef<Set<string>>(new Set());
   const mainSectionRef = useRef<HTMLElement>(null);
   const bulkStickyRef = useRef<HTMLDivElement>(null);
+  const suppressCardClickRef = useRef(false);
 
   const categoryById = useMemo(() => {
     return new Map(categoryDefinitions.map((category) => [category.id, category]));
@@ -344,6 +345,26 @@ export default function Page() {
     return photos.filter((photo) => photo.categories.includes(categoryDetailId));
   }, [categoryDetailId, photos]);
 
+  const detailPreviewPhotos = useMemo(() => {
+    if (!categoryDetailId) {
+      return [];
+    }
+
+    const map = new Map<string, PhotoCard>();
+
+    detailCategoryPhotos.forEach((photo) => {
+      map.set(photo.id, photo);
+    });
+
+    photos
+      .filter((photo) => categoryTargetPhotoIds.includes(photo.id))
+      .forEach((photo) => {
+        map.set(photo.id, photo);
+      });
+
+    return Array.from(map.values());
+  }, [categoryDetailId, categoryTargetPhotoIds, detailCategoryPhotos, photos]);
+
   useEffect(() => {
     const root = mainSectionRef.current;
     if (!root) {
@@ -418,11 +439,13 @@ export default function Page() {
   };
 
   const handleDropZoneClick = () => {
+    clearPhotoSelection();
     inputRef.current?.click();
   };
 
   const handleDropZoneDragEnter = (event: DragEvent<HTMLDivElement>) => {
     event.preventDefault();
+    clearPhotoSelection();
     dragDepthRef.current += 1;
     setIsDropActive(true);
   };
@@ -443,6 +466,7 @@ export default function Page() {
 
   const handleDropZoneDrop = (event: DragEvent<HTMLDivElement>) => {
     event.preventDefault();
+    clearPhotoSelection();
     dragDepthRef.current = 0;
     setIsDropActive(false);
 
@@ -458,6 +482,8 @@ export default function Page() {
       return;
     }
 
+    clearPhotoSelection();
+    suppressCardClickRef.current = true;
     event.dataTransfer.effectAllowed = 'move';
     event.dataTransfer.setData('text/plain', photoId);
     setDraggedPhotoId(photoId);
@@ -506,10 +532,11 @@ export default function Page() {
   };
 
   const clearPhotoSelection = () => {
-    setSelectedPhotoIds(new Set());
+    setSelectedPhotoIds((prev) => (prev.size ? new Set() : prev));
   };
 
   const openPreview = (photoId: string) => {
+    clearPhotoSelection();
     setMenuPhotoId(null);
     setPreviewPhotoId(photoId);
   };
@@ -567,10 +594,12 @@ export default function Page() {
       });
     });
 
+    clearPhotoSelection();
     closeCategoryModal();
   };
 
   const handleDropdownAction = (action: DropdownAction, photoId: string) => {
+    clearPhotoSelection();
     setMenuPhotoId(null);
 
     if (action === 'edit') {
@@ -763,14 +792,7 @@ export default function Page() {
                     <button
                       type="button"
                       className="bulkActionButton photoInteractive"
-                      onClick={() => {
-                        const firstSelectedId = selectedPhotoIdsOrdered[0];
-                        if (!firstSelectedId) {
-                          return;
-                        }
-
-                        openPreview(firstSelectedId);
-                      }}
+                      onClick={clearPhotoSelection}
                     >
                       <SpriteIcon name="pen_outline" className="bulkActionIcon" />
                       Edit Images
@@ -781,7 +803,7 @@ export default function Page() {
                       className="bulkActionButton photoInteractive"
                       onClick={() => openCategoryModal(selectedPhotoIdsOrdered)}
                     >
-                      <SpriteIcon name="archive_outline" className="bulkActionIcon" />
+                      <SpriteIcon name="stuck_outline" className="bulkActionIcon" />
                       Assign Category
                     </button>
                   </div>
@@ -806,7 +828,24 @@ export default function Page() {
                       onDragStart={(event) => handleCardDragStart(event, photo.id)}
                       onDragOver={(event) => handleCardDragOver(event, photo.id)}
                       onDrop={(event) => handleCardDrop(event, photo.id)}
-                      onDragEnd={() => setDraggedPhotoId(null)}
+                      onDragEnd={() => {
+                        setDraggedPhotoId(null);
+                        requestAnimationFrame(() => {
+                          suppressCardClickRef.current = false;
+                        });
+                      }}
+                      onClick={(event) => {
+                        const target = event.target as HTMLElement;
+                        if (suppressCardClickRef.current) {
+                          return;
+                        }
+
+                        if (target.closest('.photoInteractive') || target.closest('.photoMenu')) {
+                          return;
+                        }
+
+                        togglePhotoSelection(photo.id);
+                      }}
                     >
                       <div className="photoCard">
                         <header className="photoCardHeader">
@@ -815,6 +854,7 @@ export default function Page() {
                             className={`addCategoryButton photoInteractive ${primaryCategory ? 'hasCategory' : ''}`}
                             onClick={(event) => {
                               event.stopPropagation();
+                              clearPhotoSelection();
                               openCategoryModal([photo.id], primaryCategory?.id);
                             }}
                           >
@@ -837,6 +877,7 @@ export default function Page() {
                             aria-label="Open photo actions"
                             onClick={(event) => {
                               event.stopPropagation();
+                              clearPhotoSelection();
                               setMenuPhotoId((prev) => (prev === photo.id ? null : photo.id));
                             }}
                           >
@@ -1002,13 +1043,15 @@ export default function Page() {
           <div className="categoryModal" onClick={(event) => event.stopPropagation()}>
             <header className="categoryModalHeader">
               <div>
-                <p className="categoryModalEyebrow">{categoryDetailId ? 'Category' : 'Assign Category'}</p>
+                {categoryDetailId ? <p className="categoryModalEyebrow">Category</p> : null}
                 <h2 className="categoryModalTitle">
-                  {categoryDetailId ? detailCategory?.label ?? 'Category' : 'Select category'}
+                  {categoryDetailId ? detailCategory?.label ?? 'Category' : 'Select Category'}
                 </h2>
-                {categoryDetailId ? (
-                  <p className="categoryModalSubline">{detailCategoryPhotos.length} photos uploaded</p>
-                ) : null}
+                <p className="categoryModalSubline">
+                  {categoryDetailId
+                    ? `${detailCategoryPhotos.length} photos in this category. You're assigning ${categoryTargetPhotoIds.length} selected images`
+                    : `Select a Category for ${categoryTargetPhotoIds.length} selected images`}
+                </p>
               </div>
 
               <button
@@ -1068,58 +1111,60 @@ export default function Page() {
                       onClick={() => setSelectedCategoryId(category.id)}
                     >
                       <span className="categoryCardMain">
-                        {hasPhotos ? (
-                          <img
-                            src={categoryStat.coverSrc ?? ''}
-                            alt=""
-                            className="categoryCardPreview"
-                            draggable={false}
-                          />
-                        ) : (
-                          <span className="categoryCardIconWrap" aria-hidden="true">
-                            <SpriteIcon name={category.icon} className="categoryCardIcon" />
-                          </span>
-                        )}
+                        <span className="categoryCardMedia">
+                          {hasPhotos ? (
+                            <img
+                              src={categoryStat.coverSrc ?? ''}
+                              alt=""
+                              className="categoryCardPreview"
+                              draggable={false}
+                            />
+                          ) : (
+                            <span className="categoryCardIconWrap" aria-hidden="true">
+                              <SpriteIcon name={category.icon} className="categoryCardIcon" />
+                            </span>
+                          )}
+
+                          {hasPhotos ? (
+                            <span
+                              className="categoryCardEye photoInteractive"
+                              role="button"
+                              tabIndex={0}
+                              onClick={(event) => {
+                                event.stopPropagation();
+                                setCategoryDetailId(category.id);
+                                setSelectedCategoryId(category.id);
+                              }}
+                              onKeyDown={(event) => {
+                                if (event.key === 'Enter' || event.key === ' ') {
+                                  event.preventDefault();
+                                  setCategoryDetailId(category.id);
+                                  setSelectedCategoryId(category.id);
+                                }
+                              }}
+                              aria-label={`Open ${category.label}`}
+                            >
+                              <SpriteIcon name="eye_outline" className="categoryCardEyeIcon" />
+                            </span>
+                          ) : null}
+                        </span>
 
                         <span className="categoryCardText">
                           <span className="categoryCardTitle">{category.label}</span>
                           <span className="categoryCardSubtitle">
-                            {hasPhotos ? `${categoryStat.count} photos uploaded` : category.emptyHint}
+                            {hasPhotos ? `${categoryStat.count} images` : 'Add Images'}
                           </span>
                         </span>
                       </span>
-
-                      {hasPhotos ? (
-                        <span
-                          className="categoryCardEye photoInteractive"
-                          role="button"
-                          tabIndex={0}
-                          onClick={(event) => {
-                            event.stopPropagation();
-                            setCategoryDetailId(category.id);
-                            setSelectedCategoryId(category.id);
-                          }}
-                          onKeyDown={(event) => {
-                            if (event.key === 'Enter' || event.key === ' ') {
-                              event.preventDefault();
-                              setCategoryDetailId(category.id);
-                              setSelectedCategoryId(category.id);
-                            }
-                          }}
-                          aria-label={`Open ${category.label}`}
-                        >
-                          <SpriteIcon name="eye_outline" className="categoryCardEyeIcon" />
-                        </span>
-                      ) : null}
                     </button>
                   );
                 })}
               </div>
             ) : (
               <section className="categoryDetail" data-node-id="5027:51900">
-                {detailCategoryPhotos.length > 0 ? (
+                {detailPreviewPhotos.length > 0 ? (
                   <div className="categoryDetailGrid">
-                    {detailCategoryPhotos.map((photo) => (
+                    {detailPreviewPhotos.map((photo) => (
                       <div key={`${categoryDetailId}-${photo.id}`} className="categoryDetailPhoto">
                         <img src={photo.src} alt={photo.name} draggable={false} />
                       </div>
@@ -1134,10 +1179,17 @@ export default function Page() {
             <footer className="categoryModalActions">
               <button
                 type="button"
-                className={`categoryBackButton ${categoryDetailId ? '' : 'isHidden'}`}
-                onClick={() => setCategoryDetailId(null)}
+                className="categoryBackButton"
+                onClick={() => {
+                  if (categoryDetailId) {
+                    setCategoryDetailId(null);
+                    return;
+                  }
+
+                  closeCategoryModal();
+                }}
               >
-                Back to categories
+                {categoryDetailId ? 'Back to Categories' : 'Cancel'}
               </button>
 
               <button
