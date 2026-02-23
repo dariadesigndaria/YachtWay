@@ -214,14 +214,6 @@ const reorderItems = <T,>(list: T[], fromIndex: number, toIndex: number): T[] =>
   return next;
 };
 
-const addUniqueCategory = (categories: string[], categoryId: string) => {
-  if (categories.includes(categoryId)) {
-    return categories;
-  }
-
-  return [...categories, categoryId];
-};
-
 export default function Page() {
   const [photos, setPhotos] = useState<PhotoCard[]>([]);
   const [isDropActive, setIsDropActive] = useState(false);
@@ -234,10 +226,13 @@ export default function Page() {
   const [selectedCategoryId, setSelectedCategoryId] = useState<string | null>(null);
   const [categoryDetailId, setCategoryDetailId] = useState<string | null>(null);
   const [categoryTargetPhotoIds, setCategoryTargetPhotoIds] = useState<string[]>([]);
+  const [isBulkStickyPinned, setIsBulkStickyPinned] = useState(false);
 
   const inputRef = useRef<HTMLInputElement>(null);
   const dragDepthRef = useRef(0);
   const objectUrlsRef = useRef<Set<string>>(new Set());
+  const mainSectionRef = useRef<HTMLElement>(null);
+  const bulkStickyRef = useRef<HTMLDivElement>(null);
 
   const categoryById = useMemo(() => {
     return new Map(categoryDefinitions.map((category) => [category.id, category]));
@@ -348,6 +343,32 @@ export default function Page() {
 
     return photos.filter((photo) => photo.categories.includes(categoryDetailId));
   }, [categoryDetailId, photos]);
+
+  useEffect(() => {
+    const root = mainSectionRef.current;
+    if (!root) {
+      return;
+    }
+
+    const syncPinnedState = () => {
+      if (selectedPhotoIds.size === 0 || !bulkStickyRef.current) {
+        setIsBulkStickyPinned(false);
+        return;
+      }
+
+      const stickyStart = Math.max(0, bulkStickyRef.current.offsetTop - 12);
+      setIsBulkStickyPinned(root.scrollTop > stickyStart);
+    };
+
+    syncPinnedState();
+    root.addEventListener('scroll', syncPinnedState, { passive: true });
+    window.addEventListener('resize', syncPinnedState);
+
+    return () => {
+      root.removeEventListener('scroll', syncPinnedState);
+      window.removeEventListener('resize', syncPinnedState);
+    };
+  }, [selectedPhotoIds.size, photos.length]);
 
   const appendFiles = (files: FileList | File[]) => {
     const acceptedFiles = Array.from(files).filter(isAcceptedImage);
@@ -541,7 +562,7 @@ export default function Page() {
 
         return {
           ...photo,
-          categories: addUniqueCategory(photo.categories, selectedCategoryId),
+          categories: [selectedCategoryId],
         };
       });
     });
@@ -655,7 +676,7 @@ export default function Page() {
         <p className="sidebarFooter">CREATE NEW LISTING</p>
       </aside>
 
-      <section className="mainSection" data-node-id="4452:111909">
+      <section className="mainSection" data-node-id="4452:111909" ref={mainSectionRef}>
         <Button
           variant="outlined"
           disableRipple
@@ -723,15 +744,19 @@ export default function Page() {
             />
 
             {selectedPhotoIds.size > 0 ? (
-              <div className="bulkActionsSticky" data-node-id="5027:51114">
+              <div
+                ref={bulkStickyRef}
+                className={`bulkActionsSticky ${isBulkStickyPinned ? 'isPinned' : ''}`}
+                data-node-id="5027:51114"
+              >
                 <div className="bulkActionsBar">
                   <button
                     type="button"
                     className="bulkSelectedButton photoInteractive"
                     onClick={clearPhotoSelection}
                   >
-                    <span>{selectedPhotoIds.size} Selected</span>
                     <SpriteIcon name="cross_outline" className="bulkSelectedCloseIcon" />
+                    <span>{selectedPhotoIds.size} Selected</span>
                   </button>
 
                   <div className="bulkActionGroup">
@@ -747,6 +772,7 @@ export default function Page() {
                         openPreview(firstSelectedId);
                       }}
                     >
+                      <SpriteIcon name="pen_outline" className="bulkActionIcon" />
                       Edit Images
                     </button>
 
@@ -755,6 +781,7 @@ export default function Page() {
                       className="bulkActionButton photoInteractive"
                       onClick={() => openCategoryModal(selectedPhotoIdsOrdered)}
                     >
+                      <SpriteIcon name="archive_outline" className="bulkActionIcon" />
                       Assign Category
                     </button>
                   </div>
@@ -769,6 +796,7 @@ export default function Page() {
                   const assignedCategories = photo.categories
                     .map((categoryId) => categoryById.get(categoryId))
                     .filter((category): category is CategoryDefinition => Boolean(category));
+                  const primaryCategory = assignedCategories[0] ?? null;
 
                   return (
                     <article
@@ -784,14 +812,23 @@ export default function Page() {
                         <header className="photoCardHeader">
                           <button
                             type="button"
-                            className="addCategoryButton photoInteractive"
+                            className={`addCategoryButton photoInteractive ${primaryCategory ? 'hasCategory' : ''}`}
                             onClick={(event) => {
                               event.stopPropagation();
-                              openCategoryModal([photo.id], photo.categories[0]);
+                              openCategoryModal([photo.id], primaryCategory?.id);
                             }}
                           >
-                            <SpriteIcon name="plus_outline" className="addCategoryIcon" />
-                            <span>Add Category</span>
+                            {primaryCategory ? (
+                              <>
+                                <span>{primaryCategory.label}</span>
+                                <SpriteIcon name="pen_outline" className="assignedCategoryPenIcon" />
+                              </>
+                            ) : (
+                              <>
+                                <SpriteIcon name="plus_outline" className="addCategoryIcon" />
+                                <span>Add Category</span>
+                              </>
+                            )}
                           </button>
 
                           <button
@@ -806,16 +843,6 @@ export default function Page() {
                             <SpriteIcon name="dots_horizontal_outline" className="menuDotsIcon" />
                           </button>
                         </header>
-
-                        {assignedCategories.length > 0 ? (
-                          <div className="photoCategories">
-                            {assignedCategories.map((category) => (
-                              <span key={`${photo.id}-${category.id}`} className="photoCategoryChip">
-                                {category.label}
-                              </span>
-                            ))}
-                          </div>
-                        ) : null}
 
                         <div className="photoImageWrap">
                           <img
@@ -975,8 +1002,13 @@ export default function Page() {
           <div className="categoryModal" onClick={(event) => event.stopPropagation()}>
             <header className="categoryModalHeader">
               <div>
-                <p className="categoryModalEyebrow">Assign Category</p>
-                <h2 className="categoryModalTitle">Select category</h2>
+                <p className="categoryModalEyebrow">{categoryDetailId ? 'Category' : 'Assign Category'}</p>
+                <h2 className="categoryModalTitle">
+                  {categoryDetailId ? detailCategory?.label ?? 'Category' : 'Select category'}
+                </h2>
+                {categoryDetailId ? (
+                  <p className="categoryModalSubline">{detailCategoryPhotos.length} photos uploaded</p>
+                ) : null}
               </div>
 
               <button
@@ -989,35 +1021,37 @@ export default function Page() {
               </button>
             </header>
 
-            <div className="categoryTabs" role="tablist" aria-label="Category tabs">
-              <button
-                type="button"
-                role="tab"
-                aria-selected={activeCategoryTab === 'interior'}
-                className={`categoryTab ${activeCategoryTab === 'interior' ? 'isActive' : ''}`}
-                onClick={() => {
-                  setActiveCategoryTab('interior');
-                  setCategoryDetailId(null);
-                }}
-              >
-                <SpriteIcon name="interior_outline" className="categoryTabIcon" />
-                Interior
-              </button>
+            {!categoryDetailId ? (
+              <div className="categoryTabs" role="tablist" aria-label="Category tabs">
+                <button
+                  type="button"
+                  role="tab"
+                  aria-selected={activeCategoryTab === 'interior'}
+                  className={`categoryTab ${activeCategoryTab === 'interior' ? 'isActive' : ''}`}
+                  onClick={() => {
+                    setActiveCategoryTab('interior');
+                    setCategoryDetailId(null);
+                  }}
+                >
+                  <SpriteIcon name="interior_outline" className="categoryTabIcon" />
+                  Interior
+                </button>
 
-              <button
-                type="button"
-                role="tab"
-                aria-selected={activeCategoryTab === 'exterior'}
-                className={`categoryTab ${activeCategoryTab === 'exterior' ? 'isActive' : ''}`}
-                onClick={() => {
-                  setActiveCategoryTab('exterior');
-                  setCategoryDetailId(null);
-                }}
-              >
-                <SpriteIcon name="deck_outline" className="categoryTabIcon" />
-                Exterior
-              </button>
-            </div>
+                <button
+                  type="button"
+                  role="tab"
+                  aria-selected={activeCategoryTab === 'exterior'}
+                  className={`categoryTab ${activeCategoryTab === 'exterior' ? 'isActive' : ''}`}
+                  onClick={() => {
+                    setActiveCategoryTab('exterior');
+                    setCategoryDetailId(null);
+                  }}
+                >
+                  <SpriteIcon name="deck_outline" className="categoryTabIcon" />
+                  Exterior
+                </button>
+              </div>
+            ) : null}
 
             {!categoryDetailId ? (
               <div className="categoryGrid" data-node-id="4452:115415">
@@ -1083,11 +1117,6 @@ export default function Page() {
               </div>
             ) : (
               <section className="categoryDetail" data-node-id="5027:51900">
-                <header className="categoryDetailHeader">
-                  <h3 className="categoryDetailTitle">{detailCategory?.label ?? 'Category'}</h3>
-                  <p className="categoryDetailSubtitle">{detailCategoryPhotos.length} photos assigned</p>
-                </header>
-
                 {detailCategoryPhotos.length > 0 ? (
                   <div className="categoryDetailGrid">
                     {detailCategoryPhotos.map((photo) => (
