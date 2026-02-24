@@ -855,6 +855,28 @@ export default function Page() {
     closeCategoryModal();
   };
 
+  const handleBulkDeleteSelected = () => {
+    if (selectedPhotoIds.size === 0) {
+      return;
+    }
+
+    const selectedIds = new Set(selectedPhotoIds);
+
+    setPhotos((prev) => {
+      prev.forEach((photo) => {
+        if (selectedIds.has(photo.id)) {
+          revokePhotoUrl(photo);
+        }
+      });
+
+      return prev.filter((photo) => !selectedIds.has(photo.id));
+    });
+
+    setSelectedPhotoIds(new Set());
+    setMenuPhotoId(null);
+    setPreviewPhotoId((prev) => (prev && selectedIds.has(prev) ? null : prev));
+  };
+
   const handleDropdownAction = (action: DropdownAction, photoId: string) => {
     clearPhotoSelection();
     setMenuPhotoId(null);
@@ -1062,6 +1084,15 @@ export default function Page() {
                     >
                       <SpriteIcon name="stuck_outline" className="bulkActionIcon" />
                       Assign Category
+                    </button>
+
+                    <button
+                      type="button"
+                      className="bulkActionButton photoInteractive"
+                      onClick={handleBulkDeleteSelected}
+                    >
+                      <SpriteIcon name="trash_outline" className="bulkActionIcon" />
+                      Delete
                     </button>
                   </div>
                 </div>
