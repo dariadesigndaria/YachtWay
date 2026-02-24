@@ -564,8 +564,9 @@ export default function Page() {
         return;
       }
 
-      const stickyStart = Math.max(0, bulkStickyRef.current.offsetTop);
-      setIsBulkStickyPinned(root.scrollTop >= stickyStart);
+      const rootRect = root.getBoundingClientRect();
+      const stickyRect = bulkStickyRef.current.getBoundingClientRect();
+      setIsBulkStickyPinned(root.scrollTop > 0 && stickyRect.top <= rootRect.top + 1);
     };
 
     syncPinnedState();
@@ -670,7 +671,11 @@ export default function Page() {
   };
 
   const handlePhotoGridPointerDown = (event: ReactPointerEvent<HTMLDivElement>) => {
-    if (event.button !== 0 || event.pointerType !== 'mouse') {
+    if (event.button !== 0) {
+      return;
+    }
+
+    if (event.pointerType && event.pointerType !== 'mouse') {
       return;
     }
 
@@ -941,6 +946,10 @@ export default function Page() {
 
   return (
     <main className="uploadPage" style={pageStyle} data-node-id="4452:111907">
+      {selectedPhotoIds.size > 0 && isBulkStickyPinned ? (
+        <div className="bulkPinnedBackdrop" aria-hidden="true" />
+      ) : null}
+
       <aside className="sidebar" data-node-id="4452:111908">
         <div className="sidebarLogo" data-node-id="I4452:111908;2897:75061">
           <span className="logoYacht">YACHT</span>
