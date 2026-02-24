@@ -307,6 +307,7 @@ export default function Page() {
   const mainSectionRef = useRef<HTMLElement>(null);
   const bulkStickyRef = useRef<HTMLDivElement>(null);
   const photoGridRef = useRef<HTMLDivElement>(null);
+  const dragSourcePhotoIdRef = useRef<string | null>(null);
   const suppressCardClickRef = useRef(false);
   const isMarqueeSelectingRef = useRef(false);
   const marqueeStartRef = useRef<{ x: number; y: number } | null>(null);
@@ -739,13 +740,14 @@ export default function Page() {
 
   const handleCardDragStart = (event: DragEvent<HTMLElement>, photoId: string) => {
     const target = event.target as HTMLElement;
-    if (isMarqueeSelectingRef.current || target.closest('.photoInteractive') || target.closest('.photoMenu')) {
+    if (target.closest('.photoInteractive') || target.closest('.photoMenu')) {
       event.preventDefault();
       return;
     }
 
     clearPhotoSelection();
     suppressCardClickRef.current = true;
+    dragSourcePhotoIdRef.current = photoId;
     event.dataTransfer.effectAllowed = 'move';
     event.dataTransfer.setData('text/plain', photoId);
     setDraggedPhotoId(photoId);
@@ -753,7 +755,8 @@ export default function Page() {
   };
 
   const handleCardDragOver = (event: DragEvent<HTMLElement>, photoId: string) => {
-    if (!draggedPhotoId || draggedPhotoId === photoId) {
+    const sourcePhotoId = dragSourcePhotoIdRef.current || event.dataTransfer.getData('text/plain');
+    if (!sourcePhotoId || sourcePhotoId === photoId) {
       return;
     }
 
@@ -764,7 +767,7 @@ export default function Page() {
   const handleCardDrop = (event: DragEvent<HTMLElement>, targetPhotoId: string) => {
     event.preventDefault();
 
-    const sourcePhotoId = draggedPhotoId || event.dataTransfer.getData('text/plain');
+    const sourcePhotoId = dragSourcePhotoIdRef.current || draggedPhotoId || event.dataTransfer.getData('text/plain');
     if (!sourcePhotoId || sourcePhotoId === targetPhotoId) {
       return;
     }
@@ -777,6 +780,7 @@ export default function Page() {
     });
 
     setDraggedPhotoId(null);
+    dragSourcePhotoIdRef.current = null;
   };
 
   const togglePhotoSelection = (photoId: string) => {
@@ -1134,6 +1138,7 @@ export default function Page() {
                         onDrop={(event) => handleCardDrop(event, photo.id)}
                         onDragEnd={() => {
                           setDraggedPhotoId(null);
+                          dragSourcePhotoIdRef.current = null;
                           requestAnimationFrame(() => {
                             suppressCardClickRef.current = false;
                           });
