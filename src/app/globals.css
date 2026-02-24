@@ -380,23 +380,28 @@ button {
   text-align: center;
 }
 
-.bulkPinnedBackdrop {
-  background: #fff;
-  box-shadow: 0 4px 32px 0 rgb(140 140 140 / 24%);
-  height: 98px;
-  left: 324px;
-  pointer-events: none;
-  position: fixed;
-  right: 0;
-  top: 0;
-  z-index: 24;
-}
-
 .bulkActionsSticky {
   left: 0;
   position: sticky;
   top: 0;
   z-index: 30;
+}
+
+.bulkActionsSticky.isPinned {
+  padding: 32px 0 16px;
+}
+
+.bulkActionsSticky.isPinned::before {
+  background: #fff;
+  box-shadow: 0 4px 32px 0 rgb(140 140 140 / 24%);
+  bottom: 0;
+  content: '';
+  left: calc(444px - 50vw);
+  pointer-events: none;
+  position: absolute;
+  right: calc(444px - 50vw);
+  top: 0;
+  z-index: 0;
 }
 
 .bulkActionsBar {
@@ -408,13 +413,15 @@ button {
   justify-content: space-between;
   min-height: 48px;
   padding: 8px 0;
+  position: relative;
   transition:
     background-color 0.16s ease,
     padding 0.16s ease;
+  z-index: 1;
 }
 
 .bulkActionsSticky.isPinned .bulkActionsBar {
-  padding: 18px 0 12px;
+  padding: 0;
 }
 
 .bulkSelectedButton {
@@ -1274,9 +1281,13 @@ button {
 }
 
 @media (max-width: 960px) {
-  .bulkPinnedBackdrop {
-    display: none;
+  .bulkActionsSticky.isPinned {
+    padding: 12px 0 10px;
+  }
+
+  .bulkActionsSticky.isPinned::before {
     left: 0;
+    right: 0;
   }
 
   .uploadPage {

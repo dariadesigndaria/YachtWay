@@ -61,6 +61,8 @@ type SelectionBox = {
   width: number;
 };
 
+type MarqueeSelectionMode = 'replace' | 'add' | 'toggle';
+
 type DropdownItem =
   | {
       action: DropdownAction;
@@ -308,6 +310,8 @@ export default function Page() {
   const suppressCardClickRef = useRef(false);
   const isMarqueeSelectingRef = useRef(false);
   const marqueeStartRef = useRef<{ x: number; y: number } | null>(null);
+  const marqueeSelectionModeRef = useRef<MarqueeSelectionMode>('replace');
+  const marqueeBaselineSelectionRef = useRef<Set<string>>(new Set());
 
   const categoryById = useMemo(() => {
     return new Map(categoryDefinitions.map((category) => [category.id, category]));
@@ -366,6 +370,19 @@ export default function Page() {
       }
 
       setMenuPhotoId(null);
+
+      const clickedInsidePhotoArea =
+        Boolean(target.closest('.photoGridWrap')) ||
+        Boolean(target.closest('.photoCardFrame')) ||
+        Boolean(target.closest('.bulkActionsSticky')) ||
+        Boolean(target.closest('.categoryModal')) ||
+        Boolean(target.closest('.previewDialog'));
+
+      if (clickedInsidePhotoArea) {
+        return;
+      }
+
+      setSelectedPhotoIds((prev) => (prev.size ? new Set() : prev));
     };
 
     const handleKeyDown = (event: KeyboardEvent) => {
@@ -485,7 +502,7 @@ export default function Page() {
       width: selectionRight - selectionLeft,
     });
 
-    const nextSelected = new Set<string>();
+    const intersectingSelection = new Set<string>();
     const cards = grid.querySelectorAll<HTMLElement>('[data-photo-id]');
 
     cards.forEach((card) => {
@@ -502,11 +519,37 @@ export default function Page() {
 
       const photoId = card.dataset.photoId;
       if (photoId) {
-        nextSelected.add(photoId);
+        intersectingSelection.add(photoId);
       }
     });
 
-    setSelectedPhotoIds(nextSelected);
+    const baseline = marqueeBaselineSelectionRef.current;
+    const selectionMode = marqueeSelectionModeRef.current;
+
+    if (selectionMode === 'add') {
+      const nextSelected = new Set(baseline);
+      intersectingSelection.forEach((photoId) => {
+        nextSelected.add(photoId);
+      });
+      setSelectedPhotoIds(nextSelected);
+      return;
+    }
+
+    if (selectionMode === 'toggle') {
+      const nextSelected = new Set(baseline);
+      intersectingSelection.forEach((photoId) => {
+        if (nextSelected.has(photoId)) {
+          nextSelected.delete(photoId);
+          return;
+        }
+
+        nextSelected.add(photoId);
+      });
+      setSelectedPhotoIds(nextSelected);
+      return;
+    }
+
+    setSelectedPhotoIds(intersectingSelection);
   }, []);
 
   useEffect(() => {
@@ -521,8 +564,8 @@ export default function Page() {
         return;
       }
 
-      const stickyStart = Math.max(0, bulkStickyRef.current.offsetTop - 12);
-      setIsBulkStickyPinned(root.scrollTop > stickyStart);
+      const stickyStart = Math.max(0, bulkStickyRef.current.offsetTop);
+      setIsBulkStickyPinned(root.scrollTop >= stickyStart);
     };
 
     syncPinnedState();
@@ -556,6 +599,8 @@ export default function Page() {
 
       isMarqueeSelectingRef.current = false;
       marqueeStartRef.current = null;
+      marqueeSelectionModeRef.current = 'replace';
+      marqueeBaselineSelectionRef.current = new Set();
       setSelectionBox(null);
 
       requestAnimationFrame(() => {
@@ -625,7 +670,7 @@ export default function Page() {
   };
 
   const handlePhotoGridPointerDown = (event: ReactPointerEvent<HTMLDivElement>) => {
-    if (event.button !== 0) {
+    if (event.button !== 0 || event.pointerType !== 'mouse') {
       return;
     }
 
@@ -635,14 +680,22 @@ export default function Page() {
     }
 
     const isOnCard = Boolean(target.closest('.photoCardFrame'));
-    if (isOnCard && !event.shiftKey && !event.metaKey && !event.ctrlKey) {
+    if (isOnCard) {
       return;
     }
+
+    const selectionMode: MarqueeSelectionMode = event.metaKey || event.ctrlKey
+      ? 'toggle'
+      : event.shiftKey
+        ? 'add'
+        : 'replace';
 
     isMarqueeSelectingRef.current = true;
     suppressCardClickRef.current = true;
     marqueeStartRef.current = { x: event.clientX, y: event.clientY };
-    clearPhotoSelection();
+    marqueeSelectionModeRef.current = selectionMode;
+    marqueeBaselineSelectionRef.current =
+      selectionMode === 'replace' ? new Set<string>() : new Set(selectedPhotoIds);
     updateMarqueeSelection(event.clientX, event.clientY, event.clientX, event.clientY);
     event.preventDefault();
   };
@@ -866,10 +919,6 @@ export default function Page() {
 
   return (
     <main className="uploadPage" style={pageStyle} data-node-id="4452:111907">
-      {selectedPhotoIds.size > 0 && isBulkStickyPinned ? (
-        <div className="bulkPinnedBackdrop" aria-hidden="true" />
-      ) : null}
-
       <aside className="sidebar" data-node-id="4452:111908">
         <div className="sidebarLogo" data-node-id="I4452:111908;2897:75061">
           <span className="logoYacht">YACHT</span>
