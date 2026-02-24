@@ -36,11 +36,22 @@ type PhotoCard = {
 };
 
 type CategoryDefinition = {
-  emptyHint: string;
-  icon: SpriteIconNames;
   id: string;
+  imageSrc: string;
   label: string;
   tab: CategoryTab;
+};
+
+type CategorySeed = {
+  count: number;
+  coverSrc: string;
+  gallery: GalleryPhoto[];
+};
+
+type GalleryPhoto = {
+  id: string;
+  name: string;
+  src: string;
 };
 
 type SelectionBox = {
@@ -99,87 +110,100 @@ const categoryDefinitions: CategoryDefinition[] = [
     id: 'master-cabin',
     tab: 'interior',
     label: 'Master Cabin',
-    icon: 'bed_outline',
-    emptyHint: 'No photos uploaded yet',
+    imageSrc: 'https://www.figma.com/api/mcp/asset/3194475c-bacc-4bb3-b905-85ec1d15ffe0',
   },
   {
     id: 'engine-room',
     tab: 'interior',
     label: 'Engine Room',
-    icon: 'engine_outline',
-    emptyHint: 'No photos uploaded yet',
+    imageSrc: 'https://www.figma.com/api/mcp/asset/2cf607a7-d8c2-494a-920f-28663ffad664',
   },
   {
     id: 'guest-cabin',
     tab: 'interior',
     label: 'Guest Cabin',
-    icon: 'bed_outline',
-    emptyHint: 'No photos uploaded yet',
+    imageSrc: 'https://www.figma.com/api/mcp/asset/f4dbf05e-dae2-45b0-ab72-949ee1f3bbf1',
   },
   {
     id: 'galley',
     tab: 'interior',
     label: 'Galley',
-    icon: 'appliances_outline',
-    emptyHint: 'No photos uploaded yet',
+    imageSrc: 'https://www.figma.com/api/mcp/asset/8d08aebc-0d17-4f3f-9fd1-96f16670ee93',
   },
   {
     id: 'main-salon',
     tab: 'interior',
     label: 'Main Salon',
-    icon: 'interior_outline',
-    emptyHint: 'No photos uploaded yet',
+    imageSrc: 'https://www.figma.com/api/mcp/asset/da05abcc-465e-49b4-9e82-f1b97dba18c7',
   },
   {
     id: 'crew-quarters',
     tab: 'interior',
     label: 'Crew Quarters',
-    icon: 'crew_cabin_outline',
-    emptyHint: 'No photos uploaded yet',
+    imageSrc: 'https://www.figma.com/api/mcp/asset/f3495e3d-ddcf-450a-ba56-b44cafe9c39a',
   },
   {
     id: 'bow',
     tab: 'exterior',
     label: 'Bow',
-    icon: 'anchor_outline',
-    emptyHint: 'No photos uploaded yet',
+    imageSrc: 'https://www.figma.com/api/mcp/asset/f8bc4cf4-ae77-4996-9a72-dca327cb5d2a',
   },
   {
     id: 'stern',
     tab: 'exterior',
     label: 'Stern',
-    icon: 'deck_outline',
-    emptyHint: 'No photos uploaded yet',
+    imageSrc: 'https://www.figma.com/api/mcp/asset/40e62b5f-0117-4ee2-849d-8df1327addc2',
   },
   {
     id: 'flybridge',
     tab: 'exterior',
     label: 'Flybridge',
-    icon: 'dashboard_outline',
-    emptyHint: 'No photos uploaded yet',
+    imageSrc: 'https://www.figma.com/api/mcp/asset/579463fe-9a99-44d7-8adb-88372c0e3baa',
   },
   {
     id: 'aft-deck',
     tab: 'exterior',
     label: 'Aft Deck',
-    icon: 'deck_outline',
-    emptyHint: 'No photos uploaded yet',
+    imageSrc: 'https://www.figma.com/api/mcp/asset/d125dc91-8fd6-4e28-adc9-ccfb870f79c9',
   },
   {
     id: 'side-profile',
     tab: 'exterior',
     label: 'Side Profile',
-    icon: 'boat_side_outline',
-    emptyHint: 'No photos uploaded yet',
+    imageSrc: 'https://www.figma.com/api/mcp/asset/f391aa9c-a434-44dd-b93c-80699b6f9c0d',
   },
   {
     id: 'swim-platform',
     tab: 'exterior',
     label: 'Swim Platform',
-    icon: 'fresh_water_outline',
-    emptyHint: 'No photos uploaded yet',
+    imageSrc: 'https://www.figma.com/api/mcp/asset/60c6d2dd-3e03-47da-8a3b-6cc8a8ac3fe1',
   },
 ];
+
+const categorySeeds: Record<string, CategorySeed> = {
+  'crew-quarters': {
+    count: 5,
+    coverSrc: 'https://www.figma.com/api/mcp/asset/f3495e3d-ddcf-450a-ba56-b44cafe9c39a',
+    gallery: [
+      { id: 'seed-crew-1', name: 'Crew Quarters 1', src: 'https://www.figma.com/api/mcp/asset/e1ff5ac9-c604-47bc-a013-f8c5fc27f57b' },
+      { id: 'seed-crew-2', name: 'Crew Quarters 2', src: 'https://www.figma.com/api/mcp/asset/66ee3cf2-c28e-436e-a6ea-82f725d2fb93' },
+      { id: 'seed-crew-3', name: 'Crew Quarters 3', src: 'https://www.figma.com/api/mcp/asset/c77f7d94-1787-47dc-b092-52f1908b966c' },
+      { id: 'seed-crew-4', name: 'Crew Quarters 4', src: 'https://www.figma.com/api/mcp/asset/5e83f250-6f3f-41e1-a26e-ffe73681e02b' },
+      { id: 'seed-crew-5', name: 'Crew Quarters 5', src: 'https://www.figma.com/api/mcp/asset/8e038d5d-4360-437b-96af-2945abccada4' },
+    ],
+  },
+  'aft-deck': {
+    count: 5,
+    coverSrc: 'https://www.figma.com/api/mcp/asset/d125dc91-8fd6-4e28-adc9-ccfb870f79c9',
+    gallery: [
+      { id: 'seed-aft-1', name: 'Aft Deck 1', src: 'https://www.figma.com/api/mcp/asset/e1ff5ac9-c604-47bc-a013-f8c5fc27f57b' },
+      { id: 'seed-aft-2', name: 'Aft Deck 2', src: 'https://www.figma.com/api/mcp/asset/66ee3cf2-c28e-436e-a6ea-82f725d2fb93' },
+      { id: 'seed-aft-3', name: 'Aft Deck 3', src: 'https://www.figma.com/api/mcp/asset/c77f7d94-1787-47dc-b092-52f1908b966c' },
+      { id: 'seed-aft-4', name: 'Aft Deck 4', src: 'https://www.figma.com/api/mcp/asset/78e0f345-4bae-40e8-85c8-53bda3ec3f10' },
+      { id: 'seed-aft-5', name: 'Aft Deck 5', src: 'https://www.figma.com/api/mcp/asset/edec554c-43f1-43a2-83e1-b0c1dcdbca1c' },
+    ],
+  },
+};
 
 const pageStyle = {
   '--brand-700': themeConstants.colors.n.brand[700],
@@ -301,7 +325,11 @@ export default function Page() {
     const map = new Map<string, { count: number; coverSrc: string | null }>();
 
     categoryDefinitions.forEach((category) => {
-      map.set(category.id, { count: 0, coverSrc: null });
+      const seed = categorySeeds[category.id];
+      map.set(category.id, {
+        count: seed?.count ?? 0,
+        coverSrc: seed?.coverSrc ?? null,
+      });
     });
 
     photos.forEach((photo) => {
@@ -392,7 +420,26 @@ export default function Page() {
       return [];
     }
 
-    return photos.filter((photo) => photo.categories.includes(categoryDetailId));
+    const seeded = categorySeeds[categoryDetailId]?.gallery ?? [];
+    const assigned = photos
+      .filter((photo) => photo.categories.includes(categoryDetailId))
+      .map((photo) => ({
+        id: photo.id,
+        name: photo.name,
+        src: photo.src,
+      }));
+
+    const seen = new Set<string>();
+    const combined = [...seeded, ...assigned];
+
+    return combined.filter((photo) => {
+      if (seen.has(photo.id)) {
+        return false;
+      }
+
+      seen.add(photo.id);
+      return true;
+    });
   }, [categoryDetailId, photos]);
 
   const detailPreviewPhotos = useMemo(() => {
@@ -400,7 +447,7 @@ export default function Page() {
       return [];
     }
 
-    const map = new Map<string, PhotoCard>();
+    const map = new Map<string, GalleryPhoto>();
 
     detailCategoryPhotos.forEach((photo) => {
       map.set(photo.id, photo);
@@ -409,7 +456,11 @@ export default function Page() {
     photos
       .filter((photo) => categoryTargetPhotoIds.includes(photo.id))
       .forEach((photo) => {
-        map.set(photo.id, photo);
+        map.set(photo.id, {
+          id: photo.id,
+          name: photo.name,
+          src: photo.src,
+        });
       });
 
     return Array.from(map.values());
@@ -584,7 +635,7 @@ export default function Page() {
     }
 
     const isOnCard = Boolean(target.closest('.photoCardFrame'));
-    if (isOnCard && !event.shiftKey) {
+    if (isOnCard && !event.shiftKey && !event.metaKey && !event.ctrlKey) {
       return;
     }
 
@@ -815,6 +866,10 @@ export default function Page() {
 
   return (
     <main className="uploadPage" style={pageStyle} data-node-id="4452:111907">
+      {selectedPhotoIds.size > 0 && isBulkStickyPinned ? (
+        <div className="bulkPinnedBackdrop" aria-hidden="true" />
+      ) : null}
+
       <aside className="sidebar" data-node-id="4452:111908">
         <div className="sidebarLogo" data-node-id="I4452:111908;2897:75061">
           <span className="logoYacht">YACHT</span>
@@ -1216,14 +1271,23 @@ export default function Page() {
           <div className="categoryModal" onClick={(event) => event.stopPropagation()}>
             <header className="categoryModalHeader">
               <div>
-                {categoryDetailId ? <p className="categoryModalEyebrow">Category</p> : null}
                 <h2 className="categoryModalTitle">
                   {categoryDetailId ? detailCategory?.label ?? 'Category' : 'Select Category'}
                 </h2>
                 <p className="categoryModalSubline">
                   {categoryDetailId
-                    ? `${detailCategoryPhotos.length} photos in this category. You're assigning ${categoryTargetPhotoIds.length} selected images`
-                    : `Select a Category for ${categoryTargetPhotoIds.length} selected images`}
+                    ? (
+                      <>
+                        <span>{`${detailCategoryPhotos.length} photos in this category. `}</span>
+                        <span className="categoryModalSublineStrong">{`You're assigning ${categoryTargetPhotoIds.length} selected images`}</span>
+                      </>
+                    )
+                    : (
+                      <>
+                        <span>Select a Category for </span>
+                        <span className="categoryModalSublineStrong">{`${categoryTargetPhotoIds.length} selected images`}</span>
+                      </>
+                    )}
                 </p>
               </div>
 
@@ -1263,7 +1327,7 @@ export default function Page() {
                     setCategoryDetailId(null);
                   }}
                 >
-                  <SpriteIcon name="deck_outline" className="categoryTabIcon" />
+                  <SpriteIcon name="image_outline" className="categoryTabIcon" />
                   Exterior
                 </button>
               </div>
@@ -1285,18 +1349,12 @@ export default function Page() {
                     >
                       <span className="categoryCardMain">
                         <span className="categoryCardMedia">
-                          {hasPhotos ? (
-                            <img
-                              src={categoryStat.coverSrc ?? ''}
-                              alt=""
-                              className="categoryCardPreview"
-                              draggable={false}
-                            />
-                          ) : (
-                            <span className="categoryCardIconWrap" aria-hidden="true">
-                              <SpriteIcon name={category.icon} className="categoryCardIcon" />
-                            </span>
-                          )}
+                          <img
+                            src={categoryStat.coverSrc ?? category.imageSrc}
+                            alt=""
+                            className="categoryCardPreview"
+                            draggable={false}
+                          />
 
                           {hasPhotos ? (
                             <span
@@ -1352,7 +1410,7 @@ export default function Page() {
             <footer className="categoryModalActions">
               <button
                 type="button"
-                className="categoryBackButton"
+                className={`categoryBackButton ${categoryDetailId ? 'isDetail' : ''}`}
                 onClick={() => {
                   if (categoryDetailId) {
                     setCategoryDetailId(null);
