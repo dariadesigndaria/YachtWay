@@ -379,6 +379,10 @@ export default function Page() {
 
       setMenuPhotoId(null);
 
+      if (marqueeArmedRef.current || isMarqueeSelectingRef.current) {
+        return;
+      }
+
       const clickedInsidePhotoArea =
         Boolean(target.closest('.photoGridWrap')) ||
         Boolean(target.closest('.photoCardFrame')) ||
@@ -710,8 +714,12 @@ export default function Page() {
     inputRef.current?.click();
   };
 
-  const handlePhotoGridPointerDown = (event: ReactPointerEvent<HTMLDivElement>) => {
+  const handleMainSectionPointerDown = (event: ReactPointerEvent<HTMLElement>) => {
     if (event.pointerType !== "mouse" || event.button !== 0) return;
+
+    if (photos.length === 0 || !photoGridRef.current) {
+      return;
+    }
 
     const target = event.target as HTMLElement | null;
     if (!target) return;
@@ -1029,7 +1037,12 @@ export default function Page() {
         <p className="sidebarFooter">CREATE NEW LISTING</p>
       </aside>
 
-      <section className="mainSection" data-node-id="4452:111909" ref={mainSectionRef}>
+      <section
+        className="mainSection"
+        data-node-id="4452:111909"
+        ref={mainSectionRef}
+        onPointerDown={handleMainSectionPointerDown}
+      >
         <Button
           variant="outlined"
           disableRipple
@@ -1148,7 +1161,6 @@ export default function Page() {
               <div
                 ref={photoGridRef}
                 className={`photoGridWrap ${selectionBox ? 'isSelecting' : ''}`}
-                onPointerDown={handlePhotoGridPointerDown}
               >
                 <div className="photoGrid" data-node-id="4452:111255">
                   {photos.map((photo, index) => {

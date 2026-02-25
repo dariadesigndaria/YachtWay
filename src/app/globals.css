@@ -412,8 +412,9 @@ button {
 }
 .bulkActionsSticky {
   left: 0;
-  position: relative;
-  z-index: 30;
+  position: sticky;
+  top: 0;
+  z-index: 40;
 }
 
 .bulkActionsSticky.isPinned {
