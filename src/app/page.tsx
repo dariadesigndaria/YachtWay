@@ -61,7 +61,7 @@ type SelectionBox = {
   width: number;
 };
 
-type MarqueeSelectionMode = 'replace' | 'add' | 'toggle';
+type MarqueeSelectionMode = 'replace' | 'add' | 'toggle' | 'remove';
 
 type DropdownItem =
   | {
@@ -308,9 +308,12 @@ export default function Page() {
   const bulkStickyRef = useRef<HTMLDivElement>(null);
   const photoGridRef = useRef<HTMLDivElement>(null);
   const dragSourcePhotoIdRef = useRef<string | null>(null);
+  const selectedIdsRef = useRef<Set<string>>(new Set());
   const suppressCardClickRef = useRef(false);
   const isMarqueeSelectingRef = useRef(false);
   const marqueeStartRef = useRef<{ x: number; y: number } | null>(null);
+  const marqueeArmedRef = useRef(false);
+  const marqueeStartPointRef = useRef<{ x: number; y: number } | null>(null);
   const marqueeSelectionModeRef = useRef<MarqueeSelectionMode>('replace');
   const marqueeBaselineSelectionRef = useRef<Set<string>>(new Set());
 
@@ -362,6 +365,10 @@ export default function Page() {
       objectUrls.clear();
     };
   }, []);
+
+  useEffect(() => {
+    selectedIdsRef.current = selectedPhotoIds;
+  }, [selectedPhotoIds]);
 
   useEffect(() => {
     const handlePointerDown = (event: MouseEvent) => {
@@ -550,6 +557,15 @@ export default function Page() {
       return;
     }
 
+    if (selectionMode === 'remove') {
+      const nextSelected = new Set(baseline);
+      intersectingSelection.forEach((photoId) => {
+        nextSelected.delete(photoId);
+      });
+      setSelectedPhotoIds(nextSelected);
+      return;
+    }
+
     setSelectedPhotoIds(intersectingSelection);
   }, []);
 
@@ -582,9 +598,27 @@ export default function Page() {
 
   useEffect(() => {
     const handlePointerMove = (event: PointerEvent) => {
-      if (!isMarqueeSelectingRef.current || !marqueeStartRef.current) {
-        return;
+      if (!isMarqueeSelectingRef.current) {
+        // Arm on pointer down; activate only after a small drag so normal clicks still work.
+        if (!marqueeArmedRef.current || !marqueeStartPointRef.current) return;
+
+        const dx = event.clientX - marqueeStartPointRef.current.x;
+        const dy = event.clientY - marqueeStartPointRef.current.y;
+        if (Math.abs(dx) < 4 && Math.abs(dy) < 4) return;
+
+        suppressCardClickRef.current = true;
+        isMarqueeSelectingRef.current = true;
+
+        marqueeStartRef.current = marqueeStartPointRef.current;
+
+        // Baseline depends on mode: replace starts empty, add/remove starts from current selection.
+        marqueeBaselineSelectionRef.current =
+          marqueeSelectionModeRef.current === "replace"
+            ? new Set()
+            : new Set(selectedIdsRef.current);
       }
+
+      if (!marqueeStartRef.current) return;
 
       updateMarqueeSelection(
         marqueeStartRef.current.x,
@@ -595,12 +629,17 @@ export default function Page() {
     };
 
     const handlePointerUp = () => {
+      // If user released before dragging enough, just disarm and let normal click happen.
       if (!isMarqueeSelectingRef.current) {
+        marqueeArmedRef.current = false;
+        marqueeStartPointRef.current = null;
         return;
       }
 
       isMarqueeSelectingRef.current = false;
       marqueeStartRef.current = null;
+      marqueeArmedRef.current = false;
+      marqueeStartPointRef.current = null;
       marqueeSelectionModeRef.current = 'replace';
       marqueeBaselineSelectionRef.current = new Set();
       setSelectionBox(null);
@@ -672,38 +711,31 @@ export default function Page() {
   };
 
   const handlePhotoGridPointerDown = (event: ReactPointerEvent<HTMLDivElement>) => {
-    if (event.button !== 0) {
+    if (event.pointerType !== "mouse" || event.button !== 0) return;
+
+    const target = event.target as HTMLElement | null;
+    if (!target) return;
+
+    // Don't start lasso when user interacts with UI controls
+    if (
+      target.closest(
+        "button, a, input, textarea, select, option, [role='button'], [data-no-marquee='true']"
+      )
+    ) {
       return;
     }
 
-    if (event.pointerType && event.pointerType !== 'mouse') {
-      return;
-    }
+    // Arm lasso (activation happens on pointer move after a small threshold)
+    marqueeArmedRef.current = true;
+    marqueeStartPointRef.current = { x: event.clientX, y: event.clientY };
 
-    const target = event.target as HTMLElement;
-    if (target.closest('.photoInteractive') || target.closest('.photoMenu')) {
-      return;
-    }
+    marqueeSelectionModeRef.current = event.altKey
+      ? "remove"
+      : event.metaKey || event.ctrlKey
+      ? "add"
+      : "replace";
 
-    const isOnCard = Boolean(target.closest('.photoCardFrame'));
-    if (isOnCard) {
-      return;
-    }
-
-    const selectionMode: MarqueeSelectionMode = event.metaKey || event.ctrlKey
-      ? 'toggle'
-      : event.shiftKey
-        ? 'add'
-        : 'replace';
-
-    isMarqueeSelectingRef.current = true;
-    suppressCardClickRef.current = true;
-    marqueeStartRef.current = { x: event.clientX, y: event.clientY };
-    marqueeSelectionModeRef.current = selectionMode;
-    marqueeBaselineSelectionRef.current =
-      selectionMode === 'replace' ? new Set<string>() : new Set(selectedPhotoIds);
-    updateMarqueeSelection(event.clientX, event.clientY, event.clientX, event.clientY);
-    event.preventDefault();
+    setSelectionBox(null);
   };
 
   const handleDropZoneDragEnter = (event: DragEvent<HTMLDivElement>) => {
@@ -1145,7 +1177,7 @@ export default function Page() {
                         }}
                         onClick={(event) => {
                           const target = event.target as HTMLElement;
-                          if (suppressCardClickRef.current) {
+                          if (suppressCardClickRef.current || isMarqueeSelectingRef.current || marqueeArmedRef.current) {
                             return;
                           }
 
