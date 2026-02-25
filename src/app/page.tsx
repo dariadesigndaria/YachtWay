@@ -585,15 +585,19 @@ export default function Page() {
         return;
       }
 
-      setIsBulkStickyPinned(root.scrollTop > 0);
+      const isMainSectionScrolled = root.scrollTop > 0;
+      const isPageScrolled = window.scrollY > 0 || document.documentElement.scrollTop > 0;
+      setIsBulkStickyPinned(isMainSectionScrolled || isPageScrolled);
     };
 
     syncPinnedState();
     root.addEventListener('scroll', syncPinnedState, { passive: true });
+    window.addEventListener('scroll', syncPinnedState, { passive: true });
     window.addEventListener('resize', syncPinnedState);
 
     return () => {
       root.removeEventListener('scroll', syncPinnedState);
+      window.removeEventListener('scroll', syncPinnedState);
       window.removeEventListener('resize', syncPinnedState);
     };
   }, [selectedPhotoIds.size, photos.length]);
@@ -738,6 +742,8 @@ export default function Page() {
     marqueeSelectionModeRef.current = event.altKey
       ? "remove"
       : event.metaKey || event.ctrlKey
+      ? "add"
+      : selectedIdsRef.current.size > 0
       ? "add"
       : "replace";
 
