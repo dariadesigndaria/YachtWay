@@ -1071,7 +1071,8 @@ button {
   flex-direction: column;
   gap: 20px;
   min-height: 0;
-  overflow: hidden;
+  overflow-x: hidden;
+  overflow-y: auto;
   width: 100%;
 }
 
@@ -1134,10 +1135,10 @@ button {
 .categoryGrid {
   align-content: start;
   display: grid;
-  flex: 1;
+  flex: 0 0 auto;
   gap: 16px;
   grid-template-columns: repeat(3, minmax(0, 1fr));
-  overflow: auto;
+  overflow: visible;
   padding: 0;
   width: 100%;
 }
@@ -1148,7 +1149,7 @@ button {
   border-radius: 6px;
   cursor: pointer;
   display: flex;
-  min-height: 0;
+  min-height: 176px;
   padding: 8px;
   text-align: left;
   transition:
@@ -1245,8 +1246,8 @@ button {
 }
 
 .categoryDetail {
-  flex: 1;
-  overflow: hidden;
+  flex: 0 0 auto;
+  overflow: visible;
   width: 100%;
 }
 
@@ -1254,15 +1255,15 @@ button {
   display: grid;
   gap: 16px;
   grid-template-columns: repeat(3, minmax(0, 1fr));
-  overflow: auto;
-  padding: 0 0 8px;
+  overflow: visible;
+  padding: 0;
 }
 
 .categoryDetailPhoto {
-  aspect-ratio: 16 / 9;
   background: #f4f4f4;
   border: 2px solid #f6f6f7;
   border-radius: 4px;
+  height: 97.5px;
   overflow: hidden;
 }
 

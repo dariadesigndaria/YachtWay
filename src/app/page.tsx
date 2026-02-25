@@ -168,30 +168,7 @@ const categoryDefinitions: CategoryDefinition[] = [
   },
 ];
 
-const categorySeeds: Record<string, CategorySeed> = {
-  'crew-quarters': {
-    count: 5,
-    coverSrc: 'https://www.figma.com/api/mcp/asset/f3495e3d-ddcf-450a-ba56-b44cafe9c39a',
-    gallery: [
-      { id: 'seed-crew-1', name: 'Crew Quarters 1', src: 'https://www.figma.com/api/mcp/asset/e1ff5ac9-c604-47bc-a013-f8c5fc27f57b' },
-      { id: 'seed-crew-2', name: 'Crew Quarters 2', src: 'https://www.figma.com/api/mcp/asset/66ee3cf2-c28e-436e-a6ea-82f725d2fb93' },
-      { id: 'seed-crew-3', name: 'Crew Quarters 3', src: 'https://www.figma.com/api/mcp/asset/c77f7d94-1787-47dc-b092-52f1908b966c' },
-      { id: 'seed-crew-4', name: 'Crew Quarters 4', src: 'https://www.figma.com/api/mcp/asset/5e83f250-6f3f-41e1-a26e-ffe73681e02b' },
-      { id: 'seed-crew-5', name: 'Crew Quarters 5', src: 'https://www.figma.com/api/mcp/asset/8e038d5d-4360-437b-96af-2945abccada4' },
-    ],
-  },
-  'aft-deck': {
-    count: 5,
-    coverSrc: 'https://www.figma.com/api/mcp/asset/d125dc91-8fd6-4e28-adc9-ccfb870f79c9',
-    gallery: [
-      { id: 'seed-aft-1', name: 'Aft Deck 1', src: 'https://www.figma.com/api/mcp/asset/e1ff5ac9-c604-47bc-a013-f8c5fc27f57b' },
-      { id: 'seed-aft-2', name: 'Aft Deck 2', src: 'https://www.figma.com/api/mcp/asset/66ee3cf2-c28e-436e-a6ea-82f725d2fb93' },
-      { id: 'seed-aft-3', name: 'Aft Deck 3', src: 'https://www.figma.com/api/mcp/asset/c77f7d94-1787-47dc-b092-52f1908b966c' },
-      { id: 'seed-aft-4', name: 'Aft Deck 4', src: 'https://www.figma.com/api/mcp/asset/78e0f345-4bae-40e8-85c8-53bda3ec3f10' },
-      { id: 'seed-aft-5', name: 'Aft Deck 5', src: 'https://www.figma.com/api/mcp/asset/edec554c-43f1-43a2-83e1-b0c1dcdbca1c' },
-    ],
-  },
-};
+const categorySeeds: Record<string, CategorySeed> = {};
 
 const pageStyle = {
   '--brand-700': themeConstants.colors.n.brand[700],
