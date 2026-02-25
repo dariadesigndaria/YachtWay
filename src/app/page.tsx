@@ -498,9 +498,20 @@ export default function Page() {
         return;
       }
 
-      const isMainSectionScrolled = root.scrollTop > 0;
-      const isPageScrolled = window.scrollY > 0 || document.documentElement.scrollTop > 0;
-      setIsBulkStickyPinned(isMainSectionScrolled || isPageScrolled);
+      const sticky = bulkStickyRef.current;
+      if (!sticky) {
+        setIsBulkStickyPinned(false);
+        return;
+      }
+
+      const rootRect = root.getBoundingClientRect();
+      const stickyRect = sticky.getBoundingClientRect();
+      const rootStyles = window.getComputedStyle(root);
+      const paddingTop = parseFloat(rootStyles.paddingTop || '0') || 0;
+
+      const stickyTopWithinRoot = stickyRect.top - rootRect.top;
+      const hasReachedTop = stickyTopWithinRoot <= paddingTop + 0.5;
+      setIsBulkStickyPinned(hasReachedTop);
     };
 
     syncPinnedState();
@@ -915,9 +926,9 @@ export default function Page() {
   };
 
   return (
-    <main className="uploadPage" style={pageStyle} data-node-id="4452:111907">
+      <main className="uploadPage" style={pageStyle} data-node-id="4452:111907">
       {selectedPhotoIds.size > 0 && isBulkStickyPinned ? (
-        <div className="bulkPinnedBackdrop" aria-hidden="true" />
+        <div className="bulkPinnedBackdrop" aria-hidden="true"></div>
       ) : null}
 
       <aside className="sidebar" data-node-id="4452:111908">
@@ -1038,7 +1049,7 @@ export default function Page() {
             {selectedPhotoIds.size > 0 ? (
               <div
                 ref={bulkStickyRef}
-                className={`bulkActionsSticky ${isBulkStickyPinned ? 'isPinned' : ''}`}
+                className={`bulkActionsSticky`}
                 data-node-id="5027:51114"
               >
                 <div className="bulkActionsBar">

@@ -383,7 +383,7 @@ button {
 .bulkPinnedBackdrop {
   background: #fff;
   box-shadow: 0 4px 32px 0 rgb(140 140 140 / 24%);
-  height: 98px;
+  height: 72px;
   left: 324px;
   pointer-events: none;
   position: fixed;
@@ -413,7 +413,7 @@ button {
 .bulkActionsSticky {
   left: 0;
   position: sticky;
-  top: 0;
+  top: -60px;
   z-index: 40;
 }
 
