@@ -19,7 +19,6 @@ const assets = {
 
 type StepState = 'done' | 'active' | 'disabled';
 type DropdownAction = 'set-cover' | 'move-top' | 'rotate' | 'edit' | 'delete';
-type CategoryTab = 'interior' | 'exterior';
 
 type SidebarStep = {
   icon: SpriteIconNames;
@@ -39,19 +38,11 @@ type CategoryDefinition = {
   id: string;
   imageSrc: string;
   label: string;
-  tab: CategoryTab;
 };
 
 type CategorySeed = {
   count: number;
   coverSrc: string;
-  gallery: GalleryPhoto[];
-};
-
-type GalleryPhoto = {
-  id: string;
-  name: string;
-  src: string;
 };
 
 type SelectionBox = {
@@ -109,76 +100,64 @@ const dropdownItems: DropdownItem[] = [
 
 const categoryDefinitions: CategoryDefinition[] = [
   {
-    id: 'master-cabin',
-    tab: 'interior',
-    label: 'Master Cabin',
+    id: 'owners-cabin',
+    label: "Owner's Cabin",
     imageSrc: 'https://www.figma.com/api/mcp/asset/3194475c-bacc-4bb3-b905-85ec1d15ffe0',
   },
   {
     id: 'engine-room',
-    tab: 'interior',
     label: 'Engine Room',
     imageSrc: 'https://www.figma.com/api/mcp/asset/2cf607a7-d8c2-494a-920f-28663ffad664',
   },
   {
     id: 'guest-cabin',
-    tab: 'interior',
     label: 'Guest Cabin',
     imageSrc: 'https://www.figma.com/api/mcp/asset/f4dbf05e-dae2-45b0-ab72-949ee1f3bbf1',
   },
   {
-    id: 'galley',
-    tab: 'interior',
-    label: 'Galley',
-    imageSrc: 'https://www.figma.com/api/mcp/asset/8d08aebc-0d17-4f3f-9fd1-96f16670ee93',
-  },
-  {
     id: 'main-salon',
-    tab: 'interior',
     label: 'Main Salon',
     imageSrc: 'https://www.figma.com/api/mcp/asset/da05abcc-465e-49b4-9e82-f1b97dba18c7',
   },
   {
+    id: 'galley',
+    label: 'Galley',
+    imageSrc: 'https://www.figma.com/api/mcp/asset/8d08aebc-0d17-4f3f-9fd1-96f16670ee93',
+  },
+  {
     id: 'crew-quarters',
-    tab: 'interior',
     label: 'Crew Quarters',
     imageSrc: 'https://www.figma.com/api/mcp/asset/f3495e3d-ddcf-450a-ba56-b44cafe9c39a',
   },
   {
+    id: 'guest-cabin-2',
+    label: 'Guest Cabin',
+    imageSrc: 'https://www.figma.com/api/mcp/asset/f4dbf05e-dae2-45b0-ab72-949ee1f3bbf1',
+  },
+  {
     id: 'bow',
-    tab: 'exterior',
     label: 'Bow',
     imageSrc: 'https://www.figma.com/api/mcp/asset/f8bc4cf4-ae77-4996-9a72-dca327cb5d2a',
   },
   {
     id: 'stern',
-    tab: 'exterior',
     label: 'Stern',
     imageSrc: 'https://www.figma.com/api/mcp/asset/40e62b5f-0117-4ee2-849d-8df1327addc2',
   },
   {
     id: 'flybridge',
-    tab: 'exterior',
     label: 'Flybridge',
     imageSrc: 'https://www.figma.com/api/mcp/asset/579463fe-9a99-44d7-8adb-88372c0e3baa',
   },
   {
     id: 'aft-deck',
-    tab: 'exterior',
     label: 'Aft Deck',
     imageSrc: 'https://www.figma.com/api/mcp/asset/d125dc91-8fd6-4e28-adc9-ccfb870f79c9',
   },
   {
     id: 'side-profile',
-    tab: 'exterior',
     label: 'Side Profile',
     imageSrc: 'https://www.figma.com/api/mcp/asset/f391aa9c-a434-44dd-b93c-80699b6f9c0d',
-  },
-  {
-    id: 'swim-platform',
-    tab: 'exterior',
-    label: 'Swim Platform',
-    imageSrc: 'https://www.figma.com/api/mcp/asset/60c6d2dd-3e03-47da-8a3b-6cc8a8ac3fe1',
   },
 ];
 
@@ -186,24 +165,10 @@ const categorySeeds: Record<string, CategorySeed> = {
   'crew-quarters': {
     count: 5,
     coverSrc: 'https://www.figma.com/api/mcp/asset/f3495e3d-ddcf-450a-ba56-b44cafe9c39a',
-    gallery: [
-      { id: 'seed-crew-1', name: 'Crew Quarters 1', src: 'https://www.figma.com/api/mcp/asset/e1ff5ac9-c604-47bc-a013-f8c5fc27f57b' },
-      { id: 'seed-crew-2', name: 'Crew Quarters 2', src: 'https://www.figma.com/api/mcp/asset/66ee3cf2-c28e-436e-a6ea-82f725d2fb93' },
-      { id: 'seed-crew-3', name: 'Crew Quarters 3', src: 'https://www.figma.com/api/mcp/asset/c77f7d94-1787-47dc-b092-52f1908b966c' },
-      { id: 'seed-crew-4', name: 'Crew Quarters 4', src: 'https://www.figma.com/api/mcp/asset/5e83f250-6f3f-41e1-a26e-ffe73681e02b' },
-      { id: 'seed-crew-5', name: 'Crew Quarters 5', src: 'https://www.figma.com/api/mcp/asset/8e038d5d-4360-437b-96af-2945abccada4' },
-    ],
   },
   'aft-deck': {
     count: 5,
     coverSrc: 'https://www.figma.com/api/mcp/asset/d125dc91-8fd6-4e28-adc9-ccfb870f79c9',
-    gallery: [
-      { id: 'seed-aft-1', name: 'Aft Deck 1', src: 'https://www.figma.com/api/mcp/asset/e1ff5ac9-c604-47bc-a013-f8c5fc27f57b' },
-      { id: 'seed-aft-2', name: 'Aft Deck 2', src: 'https://www.figma.com/api/mcp/asset/66ee3cf2-c28e-436e-a6ea-82f725d2fb93' },
-      { id: 'seed-aft-3', name: 'Aft Deck 3', src: 'https://www.figma.com/api/mcp/asset/c77f7d94-1787-47dc-b092-52f1908b966c' },
-      { id: 'seed-aft-4', name: 'Aft Deck 4', src: 'https://www.figma.com/api/mcp/asset/78e0f345-4bae-40e8-85c8-53bda3ec3f10' },
-      { id: 'seed-aft-5', name: 'Aft Deck 5', src: 'https://www.figma.com/api/mcp/asset/edec554c-43f1-43a2-83e1-b0c1dcdbca1c' },
-    ],
   },
 };
 
@@ -294,9 +259,8 @@ export default function Page() {
   const [selectedPhotoIds, setSelectedPhotoIds] = useState<Set<string>>(new Set());
   const [previewPhotoId, setPreviewPhotoId] = useState<string | null>(null);
   const [isCategoryModalOpen, setIsCategoryModalOpen] = useState(false);
-  const [activeCategoryTab, setActiveCategoryTab] = useState<CategoryTab>('interior');
   const [selectedCategoryId, setSelectedCategoryId] = useState<string | null>(null);
-  const [categoryDetailId, setCategoryDetailId] = useState<string | null>(null);
+  const [categorySearchQuery, setCategorySearchQuery] = useState('');
   const [categoryTargetPhotoIds, setCategoryTargetPhotoIds] = useState<string[]>([]);
   const [isBulkStickyPinned, setIsBulkStickyPinned] = useState(false);
   const [selectionBox, setSelectionBox] = useState<SelectionBox | null>(null);
@@ -320,14 +284,6 @@ export default function Page() {
   const categoryById = useMemo(() => {
     return new Map(categoryDefinitions.map((category) => [category.id, category]));
   }, []);
-
-  const categoriesByTab = useMemo(
-    () => ({
-      interior: categoryDefinitions.filter((category) => category.tab === 'interior'),
-      exterior: categoryDefinitions.filter((category) => category.tab === 'exterior'),
-    }),
-    [],
-  );
 
   const categoryStats = useMemo(() => {
     const map = new Map<string, { count: number; coverSrc: string | null }>();
@@ -408,9 +364,7 @@ export default function Page() {
       }
 
       if (isCategoryModalOpen) {
-        setIsCategoryModalOpen(false);
-        setCategoryDetailId(null);
-        setSelectedCategoryId(null);
+        closeCategoryModal();
         return;
       }
 
@@ -442,58 +396,17 @@ export default function Page() {
   );
 
   const previewPhoto = previewPhotoIndex >= 0 ? photos[previewPhotoIndex] : null;
-  const detailCategory = categoryDetailId ? categoryById.get(categoryDetailId) ?? null : null;
 
-  const detailCategoryPhotos = useMemo(() => {
-    if (!categoryDetailId) {
-      return [];
+  const normalizedCategorySearch = categorySearchQuery.trim().toLowerCase();
+  const filteredCategories = useMemo(() => {
+    if (!normalizedCategorySearch) {
+      return categoryDefinitions;
     }
 
-    const seeded = categorySeeds[categoryDetailId]?.gallery ?? [];
-    const assigned = photos
-      .filter((photo) => photo.categories.includes(categoryDetailId))
-      .map((photo) => ({
-        id: photo.id,
-        name: photo.name,
-        src: photo.src,
-      }));
-
-    const seen = new Set<string>();
-    const combined = [...seeded, ...assigned];
-
-    return combined.filter((photo) => {
-      if (seen.has(photo.id)) {
-        return false;
-      }
-
-      seen.add(photo.id);
-      return true;
-    });
-  }, [categoryDetailId, photos]);
-
-  const detailPreviewPhotos = useMemo(() => {
-    if (!categoryDetailId) {
-      return [];
-    }
-
-    const map = new Map<string, GalleryPhoto>();
-
-    detailCategoryPhotos.forEach((photo) => {
-      map.set(photo.id, photo);
-    });
-
-    photos
-      .filter((photo) => categoryTargetPhotoIds.includes(photo.id))
-      .forEach((photo) => {
-        map.set(photo.id, {
-          id: photo.id,
-          name: photo.name,
-          src: photo.src,
-        });
-      });
-
-    return Array.from(map.values());
-  }, [categoryDetailId, categoryTargetPhotoIds, detailCategoryPhotos, photos]);
+    return categoryDefinitions.filter((category) =>
+      category.label.toLowerCase().includes(normalizedCategorySearch),
+    );
+  }, [normalizedCategorySearch]);
 
   const updateMarqueeSelection = useCallback((startX: number, startY: number, currentX: number, currentY: number) => {
     const grid = photoGridRef.current;
@@ -862,8 +775,8 @@ export default function Page() {
 
   const closeCategoryModal = () => {
     setIsCategoryModalOpen(false);
-    setCategoryDetailId(null);
     setSelectedCategoryId(null);
+    setCategorySearchQuery('');
     setCategoryTargetPhotoIds([]);
   };
 
@@ -874,11 +787,9 @@ export default function Page() {
 
     setIsCategoryModalOpen(true);
     setCategoryTargetPhotoIds(targetPhotoIds);
-    setCategoryDetailId(null);
+    setCategorySearchQuery('');
 
     if (initialCategoryId && categoryById.has(initialCategoryId)) {
-      const initialCategory = categoryById.get(initialCategoryId);
-      setActiveCategoryTab(initialCategory?.tab ?? 'interior');
       setSelectedCategoryId(initialCategoryId);
       return;
     }
@@ -930,6 +841,22 @@ export default function Page() {
     setPreviewPhotoId((prev) => (prev && selectedIds.has(prev) ? null : prev));
   };
 
+  const rotatePhoto = useCallback((photoId: string) => {
+    setPhotos((prev) => {
+      const index = prev.findIndex((photo) => photo.id === photoId);
+      if (index === -1) {
+        return prev;
+      }
+
+      const next = [...prev];
+      next[index] = {
+        ...next[index],
+        rotation: (next[index].rotation + 90) % 360,
+      };
+      return next;
+    });
+  }, []);
+
   const handleDropdownAction = (action: DropdownAction, photoId: string) => {
     clearPhotoSelection();
     setMenuPhotoId(null);
@@ -963,6 +890,11 @@ export default function Page() {
       return;
     }
 
+    if (action === 'rotate') {
+      rotatePhoto(photoId);
+      return;
+    }
+
     setPhotos((prev) => {
       const index = prev.findIndex((photo) => photo.id === photoId);
       if (index === -1) {
@@ -976,16 +908,6 @@ export default function Page() {
       if (action === 'move-top') {
         const topIndex = Math.min(1, prev.length - 1);
         return reorderItems(prev, index, topIndex);
-      }
-
-      if (action === 'rotate') {
-        const next = [...prev];
-        next[index] = {
-          ...next[index],
-          rotation: (next[index].rotation + 90) % 360,
-        };
-
-        return next;
       }
 
       return prev;
@@ -1358,14 +1280,45 @@ export default function Page() {
       {previewPhoto ? (
         <div className="previewOverlay" onClick={() => setPreviewPhotoId(null)} data-node-id="5078:31846">
           <div className="previewDialog" onClick={(event) => event.stopPropagation()}>
-            <button
-              type="button"
-              className="previewCloseButton photoInteractive"
-              onClick={() => setPreviewPhotoId(null)}
-              aria-label="Close preview"
-            >
-              <SpriteIcon name="cross_outline" className="previewCloseIcon" />
-            </button>
+            <div className="previewTopBar">
+              <span className="previewCounter">
+                {previewPhotoIndex + 1}/{photos.length}
+              </span>
+
+              <div className="previewActions">
+                <button
+                  type="button"
+                  className="previewActionButton isDisabled"
+                  disabled
+                  aria-disabled="true"
+                >
+                  <SpriteIcon name="pen_outline" className="previewActionIcon" />
+                  Edit Image
+                </button>
+
+                <span className="previewActionDivider" aria-hidden="true" />
+
+                <button
+                  type="button"
+                  className="previewActionButton"
+                  onClick={() => rotatePhoto(previewPhoto.id)}
+                >
+                  <SpriteIcon name="arrows_clockwise_outline" className="previewActionIcon" />
+                  Rotate Image
+                </button>
+              </div>
+
+              <div className="previewTopBarSpacer">
+                <button
+                  type="button"
+                  className="previewCloseButton photoInteractive"
+                  onClick={() => setPreviewPhotoId(null)}
+                  aria-label="Close preview"
+                >
+                  <SpriteIcon name="cross_outline" className="previewCloseIcon" />
+                </button>
+              </div>
+            </div>
 
             {photos.length > 1 ? (
               <button
@@ -1374,7 +1327,7 @@ export default function Page() {
                 onClick={() => openAdjacentPreview(-1)}
                 aria-label="Previous image"
               >
-                <SpriteIcon name="chevron_left" className="previewNavIcon" />
+                <SpriteIcon name="arrow_left" className="previewNavIcon" />
               </button>
             ) : null}
 
@@ -1386,12 +1339,6 @@ export default function Page() {
                 style={{ transform: `rotate(${previewPhoto.rotation}deg)` }}
                 draggable={false}
               />
-              <figcaption className="previewCaption">
-                <span className="previewName">{previewPhoto.name}</span>
-                <span className="previewCount">
-                  {previewPhotoIndex + 1}/{photos.length}
-                </span>
-              </figcaption>
             </figure>
 
             {photos.length > 1 ? (
@@ -1401,7 +1348,7 @@ export default function Page() {
                 onClick={() => openAdjacentPreview(1)}
                 aria-label="Next image"
               >
-                <SpriteIcon name="chevron_right" className="previewNavIcon" />
+                <SpriteIcon name="arrow_right" className="previewNavIcon" />
               </button>
             ) : null}
           </div>
@@ -1413,23 +1360,10 @@ export default function Page() {
           <div className="categoryModal" onClick={(event) => event.stopPropagation()}>
             <header className="categoryModalHeader">
               <div>
-                <h2 className="categoryModalTitle">
-                  {categoryDetailId ? detailCategory?.label ?? 'Category' : 'Select Category'}
-                </h2>
+                <h2 className="categoryModalTitle">Select Category</h2>
                 <p className="categoryModalSubline">
-                  {categoryDetailId
-                    ? (
-                      <>
-                        <span>{`${detailCategoryPhotos.length} photos in this category. `}</span>
-                        <span className="categoryModalSublineStrong">{`You're assigning ${categoryTargetPhotoIds.length} selected images`}</span>
-                      </>
-                    )
-                    : (
-                      <>
-                        <span>Select a Category for </span>
-                        <span className="categoryModalSublineStrong">{`${categoryTargetPhotoIds.length} selected images`}</span>
-                      </>
-                    )}
+                  <span>Select a Category for </span>
+                  <span className="categoryModalSublineStrong">{`${categoryTargetPhotoIds.length} selected images`}</span>
                 </p>
               </div>
 
@@ -1443,43 +1377,33 @@ export default function Page() {
               </button>
             </header>
 
-            {!categoryDetailId ? (
-              <div className="categoryTabs" role="tablist" aria-label="Category tabs">
-                <button
-                  type="button"
-                  role="tab"
-                  aria-selected={activeCategoryTab === 'interior'}
-                  className={`categoryTab ${activeCategoryTab === 'interior' ? 'isActive' : ''}`}
-                  onClick={() => {
-                    setActiveCategoryTab('interior');
-                    setCategoryDetailId(null);
-                  }}
-                >
-                  <SpriteIcon name="interior_outline" className="categoryTabIcon" />
-                  Interior
-                </button>
+            <div className="categoryModalBody">
+              <div className="categorySearch">
+                <SpriteIcon name="search_outline" className="categorySearchIcon" />
+                <input
+                  type="text"
+                  className="categorySearchInput"
+                  placeholder="Search for Category"
+                  value={categorySearchQuery}
+                  onChange={(event) => setCategorySearchQuery(event.target.value)}
+                />
 
-                <button
-                  type="button"
-                  role="tab"
-                  aria-selected={activeCategoryTab === 'exterior'}
-                  className={`categoryTab ${activeCategoryTab === 'exterior' ? 'isActive' : ''}`}
-                  onClick={() => {
-                    setActiveCategoryTab('exterior');
-                    setCategoryDetailId(null);
-                  }}
-                >
-                  <SpriteIcon name="image_outline" className="categoryTabIcon" />
-                  Exterior
-                </button>
+                {categorySearchQuery ? (
+                  <button
+                    type="button"
+                    className="categorySearchClearButton photoInteractive"
+                    onClick={() => setCategorySearchQuery('')}
+                    aria-label="Clear category search"
+                  >
+                    <SpriteIcon name="cross_outline" className="categorySearchClearIcon" />
+                  </button>
+                ) : null}
               </div>
-            ) : null}
 
-            {!categoryDetailId ? (
+              {filteredCategories.length > 0 ? (
               <div className="categoryGrid" data-node-id="4452:115415">
-                {categoriesByTab[activeCategoryTab].map((category) => {
+                {filteredCategories.map((category) => {
                   const categoryStat = categoryStats.get(category.id) ?? { count: 0, coverSrc: null };
-                  const hasPhotos = categoryStat.count > 0;
                   const isSelected = selectedCategoryId === category.id;
 
                   return (
@@ -1497,72 +1421,32 @@ export default function Page() {
                             className="categoryCardPreview"
                             draggable={false}
                           />
-
-                          {hasPhotos ? (
-                            <span
-                              className="categoryCardEye photoInteractive"
-                              role="button"
-                              tabIndex={0}
-                              onClick={(event) => {
-                                event.stopPropagation();
-                                setCategoryDetailId(category.id);
-                                setSelectedCategoryId(category.id);
-                              }}
-                              onKeyDown={(event) => {
-                                if (event.key === 'Enter' || event.key === ' ') {
-                                  event.preventDefault();
-                                  setCategoryDetailId(category.id);
-                                  setSelectedCategoryId(category.id);
-                                }
-                              }}
-                              aria-label={`Open ${category.label}`}
-                            >
-                              <SpriteIcon name="eye_outline" className="categoryCardEyeIcon" />
-                            </span>
-                          ) : null}
                         </span>
 
                         <span className="categoryCardText">
                           <span className="categoryCardTitle">{category.label}</span>
-                          <span className="categoryCardSubtitle">
-                            {hasPhotos ? `${categoryStat.count} images` : 'Add Images'}
-                          </span>
+                          <span className="categoryCardSubtitle">Add Images</span>
                         </span>
                       </span>
                     </button>
                   );
                 })}
               </div>
-            ) : (
-              <section className="categoryDetail" data-node-id="5027:51900">
-                {detailPreviewPhotos.length > 0 ? (
-                  <div className="categoryDetailGrid">
-                    {detailPreviewPhotos.map((photo) => (
-                      <div key={`${categoryDetailId}-${photo.id}`} className="categoryDetailPhoto">
-                        <img src={photo.src} alt={photo.name} draggable={false} />
-                      </div>
-                    ))}
-                  </div>
-                ) : (
-                  <p className="categoryDetailEmpty">No photos in this category yet.</p>
-                )}
-              </section>
-            )}
+              ) : (
+                <div className="categoryEmptyState">
+                  <p className="categoryEmptyTitle">{`No “${categorySearchQuery.trim()}” feature found`}</p>
+                  <p className="categoryEmptySubtitle">Try adjusting your search</p>
+                </div>
+              )}
+            </div>
 
             <footer className="categoryModalActions">
               <button
                 type="button"
-                className={`categoryBackButton ${categoryDetailId ? 'isDetail' : ''}`}
-                onClick={() => {
-                  if (categoryDetailId) {
-                    setCategoryDetailId(null);
-                    return;
-                  }
-
-                  closeCategoryModal();
-                }}
+                className="categoryBackButton"
+                onClick={closeCategoryModal}
               >
-                {categoryDetailId ? 'Back to Categories' : 'Cancel'}
+                Cancel
               </button>
 
               <button
