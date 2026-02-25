@@ -134,7 +134,7 @@ const categoryDefinitions: CategoryDefinition[] = [
   {
     id: 'crew-quarters',
     label: 'Crew Quarters',
-    imageSrc: 'https://www.figma.com/api/mcp/asset/f3495e3d-ddcf-450a-ba56-b44cafe9c39a',
+    imageSrc: `${basePath}/assets/crew-quarters.png`,
   },
   {
     id: 'guest-cabin-2',
@@ -159,7 +159,7 @@ const categoryDefinitions: CategoryDefinition[] = [
   {
     id: 'aft-deck',
     label: 'Aft Deck',
-    imageSrc: 'https://www.figma.com/api/mcp/asset/d125dc91-8fd6-4e28-adc9-ccfb870f79c9',
+    imageSrc: `${basePath}/assets/aft-deck.png`,
   },
   {
     id: 'side-profile',
