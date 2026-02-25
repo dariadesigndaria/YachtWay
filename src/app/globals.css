@@ -1006,18 +1006,19 @@ button {
   box-shadow: 0 4px 32px rgb(140 140 140 / 24%);
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  gap: 32px;
   height: min(749px, calc(100vh - 32px));
   max-width: min(616px, 100%);
   overflow: hidden;
   padding: 32px 32px 0;
+  position: relative;
   width: 616px;
 }
 
 .categoryModalHeader {
   align-items: flex-start;
   display: flex;
-  justify-content: space-between;
+  justify-content: flex-start;
   padding: 0;
   width: 100%;
 }
@@ -1052,7 +1053,10 @@ button {
   display: inline-flex;
   height: 40px;
   justify-content: center;
-  margin: -20px -20px 0 0;
+  margin: 0;
+  position: absolute;
+  right: 12px;
+  top: 12px;
   width: 40px;
 }
 
@@ -1081,8 +1085,8 @@ button {
   border-radius: 2px;
   display: flex;
   gap: 8px;
-  height: 48px;
-  min-height: 48px;
+  height: 40px;
+  min-height: 40px;
   padding: 8px 12px;
   width: 100%;
 }
@@ -1132,15 +1136,15 @@ button {
   display: grid;
   flex: 1;
   gap: 16px;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   overflow: auto;
-  padding: 0 0 8px;
+  padding: 0;
   width: 100%;
 }
 
 .categoryCard {
   background: #fff;
-  border: 1px solid transparent;
+  border: 2px solid transparent;
   border-radius: 6px;
   cursor: pointer;
   display: flex;
@@ -1160,6 +1164,11 @@ button {
 .categoryCard.isSelected {
   background: #fff;
   border-color: #e6dcf4;
+}
+
+.categoryCard:focus-visible {
+  border-color: #e6dcf4;
+  outline: none;
 }
 
 .categoryCardMain {

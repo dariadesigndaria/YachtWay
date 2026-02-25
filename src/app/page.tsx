@@ -41,8 +41,8 @@ type CategoryDefinition = {
 };
 
 type CategorySeed = {
-  count: number;
-  coverSrc: string;
+  count?: number;
+  coverSrc?: string;
   gallery?: GalleryPhoto[];
 };
 
@@ -312,9 +312,10 @@ export default function Page() {
 
     categoryDefinitions.forEach((category) => {
       const seed = categorySeeds[category.id];
+      const seededGallery = seed?.gallery ?? [];
       map.set(category.id, {
-        count: seed?.count ?? 0,
-        coverSrc: seed?.coverSrc ?? null,
+        count: seededGallery.length > 0 ? seededGallery.length : seed?.count ?? 0,
+        coverSrc: seededGallery[0]?.src ?? seed?.coverSrc ?? null,
       });
     });
 
@@ -1508,13 +1509,25 @@ export default function Page() {
                         const categoryStat = categoryStats.get(category.id) ?? { count: 0, coverSrc: null };
                         const hasPhotos = categoryStat.count > 0;
                         const isSelected = selectedCategoryId === category.id;
+                        const selectCategory = () => setSelectedCategoryId(category.id);
+                        const openCategoryDetails = () => {
+                          setCategoryDetailId(category.id);
+                          setSelectedCategoryId(category.id);
+                        };
 
                         return (
-                          <button
+                          <div
                             key={category.id}
-                            type="button"
                             className={`categoryCard ${isSelected ? 'isSelected' : ''}`}
-                            onClick={() => setSelectedCategoryId(category.id)}
+                            role="button"
+                            tabIndex={0}
+                            onClick={selectCategory}
+                            onKeyDown={(event) => {
+                              if (event.key === 'Enter' || event.key === ' ') {
+                                event.preventDefault();
+                                selectCategory();
+                              }
+                            }}
                           >
                             <span className="categoryCardMain">
                               <span className="categoryCardMedia">
@@ -1526,37 +1539,34 @@ export default function Page() {
                                 />
 
                                 {hasPhotos ? (
-                                  <span
+                                  <button
+                                    type="button"
                                     className="categoryCardEye photoInteractive"
-                                    role="button"
-                                    tabIndex={0}
                                     onClick={(event) => {
                                       event.stopPropagation();
-                                      setCategoryDetailId(category.id);
-                                      setSelectedCategoryId(category.id);
+                                      openCategoryDetails();
                                     }}
                                     onKeyDown={(event) => {
                                       if (event.key === 'Enter' || event.key === ' ') {
                                         event.preventDefault();
-                                        setCategoryDetailId(category.id);
-                                        setSelectedCategoryId(category.id);
+                                        openCategoryDetails();
                                       }
                                     }}
                                     aria-label={`Open ${category.label}`}
                                   >
                                     <SpriteIcon name="eye_outline" className="categoryCardEyeIcon" />
-                                  </span>
+                                  </button>
                                 ) : null}
                               </span>
 
                               <span className="categoryCardText">
                                 <span className="categoryCardTitle">{category.label}</span>
                                 <span className="categoryCardSubtitle">
-                                  {hasPhotos ? `${categoryStat.count} images` : 'Add Images'}
+                                  {hasPhotos ? `${categoryStat.count} photos` : 'Add Images'}
                                 </span>
                               </span>
                             </span>
-                          </button>
+                          </div>
                         );
                       })}
                     </div>
