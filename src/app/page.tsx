@@ -580,14 +580,12 @@ export default function Page() {
     }
 
     const syncPinnedState = () => {
-      if (selectedPhotoIds.size === 0 || !bulkStickyRef.current) {
+      if (selectedPhotoIds.size === 0) {
         setIsBulkStickyPinned(false);
         return;
       }
 
-      const rootRect = root.getBoundingClientRect();
-      const stickyRect = bulkStickyRef.current.getBoundingClientRect();
-      setIsBulkStickyPinned(root.scrollTop > 0 && stickyRect.top <= rootRect.top + 1);
+      setIsBulkStickyPinned(root.scrollTop > 0);
     };
 
     syncPinnedState();
