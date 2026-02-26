@@ -7,12 +7,14 @@ import type {
   PointerEvent as ReactPointerEvent,
 } from 'react';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useRouter } from 'next/navigation';
 
 import { Button } from '@yachtway/design-system/src/components/common/button';
 import {
   SpriteIcon,
   type SpriteIconNames,
 } from '@yachtway/design-system/src/components/common/sprite-icon';
+import { TextField } from '@yachtway/design-system/src/components/common/text-field';
 import themeConstants from '@yachtway/design-system/src/theme/constants';
 
 const basePath = process.env.NEXT_PUBLIC_BASE_PATH ?? '';
@@ -162,6 +164,7 @@ const getYoutubeEmbed = (videoId: string) =>
   `https://www.youtube.com/embed/${videoId}?autoplay=1&modestbranding=1&rel=0`;
 
 export default function Page() {
+  const router = useRouter();
   const [videos, setVideos] = useState<VideoCard[]>([]);
   const [isDropActive, setIsDropActive] = useState(false);
   const [draggedVideoId, setDraggedVideoId] = useState<string | null>(null);
@@ -276,11 +279,6 @@ export default function Page() {
   const uploadedCountText = useMemo(
     () => `${videos.length}/${MAX_VIDEOS} videos added`,
     [videos.length],
-  );
-
-  const selectedVideoIdsOrdered = useMemo(
-    () => videos.filter((video) => selectedVideoIds.has(video.id)).map((video) => video.id),
-    [selectedVideoIds, videos],
   );
 
   const previewVideoIndex = useMemo(
@@ -673,6 +671,15 @@ export default function Page() {
     clearVideoSelection();
     setMenuVideoId(null);
     setPreviewVideoId(videoId);
+  };
+
+  const openAdjacentPreview = (offset: number) => {
+    if (videos.length === 0 || previewVideoIndex === -1) {
+      return;
+    }
+
+    const nextIndex = (previewVideoIndex + offset + videos.length) % videos.length;
+    setPreviewVideoId(videos[nextIndex].id);
   };
 
   const handleBulkDeleteSelected = () => {
@@ -1171,7 +1178,12 @@ export default function Page() {
           </section>
 
           <footer className="navigationRow" data-node-id="5027:53189">
-            <button type="button" className="backButton" data-node-id="5027:53190">
+            <button
+              type="button"
+              className="backButton"
+              data-node-id="5027:53190"
+              onClick={() => router.push('/')}
+            >
               <SpriteIcon name="arrow_left" className="navIcon" />
               Back
             </button>
@@ -1183,7 +1195,7 @@ export default function Page() {
               endIcon={<SpriteIcon name="arrow_right" className="navIcon" />}
               data-node-id="5027:53191"
             >
-              Save and continue
+              Save &amp; Next
             </Button>
           </footer>
         </div>
@@ -1192,32 +1204,66 @@ export default function Page() {
       {previewVideo ? (
         <div className="previewOverlay" onClick={() => setPreviewVideoId(null)} data-node-id="5237:33815">
           <div className="previewDialog videoPreviewDialog" onClick={(event) => event.stopPropagation()}>
-            <button
-              type="button"
-              className="previewCloseButton photoInteractive"
-              onClick={() => setPreviewVideoId(null)}
-              aria-label="Close video preview"
-            >
-              <SpriteIcon name="cross_outline" className="previewCloseIcon" />
-            </button>
+            <div className="previewTopBar">
+              <span className="previewCounter">
+                {previewVideoIndex + 1}/{videos.length}
+              </span>
 
-            {previewVideo.source === 'upload' ? (
-              <video
-                src={previewVideo.src}
-                className="videoPreviewPlayer"
-                autoPlay
-                controls
-                playsInline
-              />
-            ) : previewYoutubeId ? (
-              <iframe
-                className="videoPreviewEmbed"
-                src={getYoutubeEmbed(previewYoutubeId)}
-                title={previewVideo.name}
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                referrerPolicy="strict-origin-when-cross-origin"
-                allowFullScreen
-              />
+              <div className="previewActions previewActionsEmpty" aria-hidden="true" />
+
+              <div className="previewTopBarSpacer">
+                <button
+                  type="button"
+                  className="previewCloseButton photoInteractive"
+                  onClick={() => setPreviewVideoId(null)}
+                  aria-label="Close video preview"
+                >
+                  <SpriteIcon name="cross_outline" className="previewCloseIcon" />
+                </button>
+              </div>
+            </div>
+
+            {videos.length > 1 ? (
+              <button
+                type="button"
+                className="previewNavButton previewNavPrev photoInteractive"
+                onClick={() => openAdjacentPreview(-1)}
+                aria-label="Previous video"
+              >
+                <SpriteIcon name="arrow_left" className="previewNavIcon" />
+              </button>
+            ) : null}
+
+            <figure className="previewFigure videoPreviewFigure">
+              {previewVideo.source === 'upload' ? (
+                <video
+                  src={previewVideo.src}
+                  className="videoPreviewPlayer"
+                  autoPlay
+                  controls
+                  playsInline
+                />
+              ) : previewYoutubeId ? (
+                <iframe
+                  className="videoPreviewEmbed"
+                  src={getYoutubeEmbed(previewYoutubeId)}
+                  title={previewVideo.name}
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                  referrerPolicy="strict-origin-when-cross-origin"
+                  allowFullScreen
+                />
+              ) : null}
+            </figure>
+
+            {videos.length > 1 ? (
+              <button
+                type="button"
+                className="previewNavButton previewNavNext photoInteractive"
+                onClick={() => openAdjacentPreview(1)}
+                aria-label="Next video"
+              >
+                <SpriteIcon name="arrow_right" className="previewNavIcon" />
+              </button>
             ) : null}
           </div>
         </div>
@@ -1242,19 +1288,21 @@ export default function Page() {
 
             <div className="youtubeModalBody">
               {youtubeLinks.map((link, index) => (
-                <label key={`youtube-link-${index}`} className="youtubeLinkField">
-                  <span className="youtubeLinkLabel">Link {index + 1}</span>
-                  <input
+                <div key={`youtube-link-${index}`} className="youtubeLinkField">
+                  <TextField
+                    fullWidth
+                    size="small"
+                    variant="outlined"
                     type="url"
-                    className={`youtubeLinkInput ${youtubeLinkErrors[index] ? 'hasError' : ''}`}
+                    label={`Link ${index + 1}`}
                     value={link}
                     placeholder="https://www.youtube.com/watch?v=XXXXXXXXXXX"
                     onChange={(event) => handleYoutubeLinkChange(index, event.target.value)}
+                    error={Boolean(youtubeLinkErrors[index])}
+                    helperText={youtubeLinkErrors[index] || ' '}
+                    className="youtubeLinkDsInput"
                   />
-                  {youtubeLinkErrors[index] ? (
-                    <span className="youtubeLinkError">{youtubeLinkErrors[index]}</span>
-                  ) : null}
-                </label>
+                </div>
               ))}
 
               <button

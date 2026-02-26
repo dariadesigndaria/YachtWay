@@ -1348,7 +1348,14 @@ export default function Page() {
               className="nextButton"
               endIcon={<SpriteIcon name="arrow_right" className="navIcon" />}
               data-node-id="4452:111297"
-              onClick={() => router.push('/upload-videos')}
+              disabled={photos.length === 0}
+              onClick={() => {
+                if (photos.length === 0) {
+                  return;
+                }
+
+                router.push('/upload-videos');
+              }}
             >
               Save and continue
             </Button>
