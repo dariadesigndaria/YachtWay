@@ -185,8 +185,8 @@ const pageStyle = {
 
 const MAX_PHOTOS = 120;
 const ACCEPT_FILE_TYPES = '.jpg,.jpeg,.png,.svg,.heif,.heic,image/*';
-const PHOTOS_STORAGE_KEY = 'yachtway-upload-photos-step-state';
 let nextPhotoId = 0;
+let cachedPhotosState: PhotoCard[] | null = null;
 
 const createPhotoId = () => {
   nextPhotoId += 1;
@@ -317,55 +317,36 @@ export default function Page() {
   }, [photos]);
 
   useEffect(() => {
-    if (typeof window === 'undefined') {
+    if (!cachedPhotosState || cachedPhotosState.length === 0) {
       return;
     }
 
-    const storedValue = window.sessionStorage.getItem(PHOTOS_STORAGE_KEY);
-    if (!storedValue) {
-      return;
-    }
-
-    try {
-      const parsed = JSON.parse(storedValue) as unknown;
-      if (!Array.isArray(parsed)) {
-        return;
+    cachedPhotosState.forEach((photo) => {
+      if (photo.src.startsWith('blob:')) {
+        objectUrlsRef.current.add(photo.src);
       }
+    });
 
-      const restoredPhotos = parsed.filter((item): item is PhotoCard => {
-        if (!item || typeof item !== 'object') {
-          return false;
-        }
-
-        const candidate = item as Partial<PhotoCard>;
-        return (
-          typeof candidate.id === 'string' &&
-          typeof candidate.name === 'string' &&
-          typeof candidate.src === 'string' &&
-          typeof candidate.rotation === 'number' &&
-          Array.isArray(candidate.categories)
-        );
-      });
-
-      restoredPhotos.forEach((photo) => {
-        if (photo.src.startsWith('blob:')) {
-          objectUrlsRef.current.add(photo.src);
-        }
-      });
-
-      setPhotos(restoredPhotos);
-    } catch {
-      // Ignore malformed session payload.
-    }
+    setPhotos(cachedPhotosState);
   }, []);
 
   useEffect(() => {
-    if (typeof window === 'undefined') {
-      return;
-    }
-
-    window.sessionStorage.setItem(PHOTOS_STORAGE_KEY, JSON.stringify(photos));
+    cachedPhotosState = photos;
   }, [photos]);
+
+  useEffect(() => {
+    const handleBeforeUnload = () => {
+      const objectUrls = objectUrlsRef.current;
+      objectUrls.forEach((url) => URL.revokeObjectURL(url));
+      objectUrls.clear();
+      cachedPhotosState = null;
+    };
+
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    return () => {
+      window.removeEventListener('beforeunload', handleBeforeUnload);
+    };
+  }, []);
 
   useEffect(() => {
     selectedIdsRef.current = selectedPhotoIds;
