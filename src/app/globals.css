@@ -1163,7 +1163,7 @@ button {
   box-shadow: 0 4px 32px rgb(140 140 140 / 24%);
   display: flex;
   flex-direction: column;
-  gap: 24px;
+  gap: 32px;
   min-height: 440px;
   overflow: hidden;
   padding: 32px 32px 0;
@@ -1200,7 +1200,7 @@ button {
 .youtubeModalTitle {
   color: #2f2f39;
   font-family: var(--font-poppins), sans-serif;
-  font-size: 32px;
+  font-size: 24px;
   font-weight: 500;
   line-height: 36px;
   margin: 0;
@@ -1217,7 +1217,7 @@ button {
   display: flex;
   flex: 1;
   flex-direction: column;
-  gap: 16px;
+  gap: 20px;
   min-height: 0;
   overflow-y: auto;
 }
@@ -1233,44 +1233,6 @@ button {
 .youtubeLinkDsInput .MuiFormHelperText-root {
   margin-left: 0;
   margin-right: 0;
-  min-height: 18px;
-}
-
-.youtubeLinkLabel {
-  color: #727279;
-  font-size: 12px;
-  font-weight: 500;
-  line-height: 18px;
-  margin-bottom: -2px;
-  margin-left: 12px;
-  width: fit-content;
-}
-
-.youtubeLinkInput {
-  border: 1px solid #dcdcde;
-  border-radius: 2px;
-  color: #2f2f39;
-  font-size: 14px;
-  font-weight: 500;
-  height: 40px;
-  line-height: 20px;
-  outline: none;
-  padding: 8px 12px;
-}
-
-.youtubeLinkInput:focus {
-  border-color: #7e52be;
-}
-
-.youtubeLinkInput.hasError {
-  border-color: #dc362e;
-}
-
-.youtubeLinkError {
-  color: #dc362e;
-  font-size: 12px;
-  line-height: 18px;
-  margin-top: 4px;
 }
 
 .youtubeAddLinkButton {

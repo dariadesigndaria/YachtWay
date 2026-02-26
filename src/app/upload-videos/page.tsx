@@ -1296,10 +1296,9 @@ export default function Page() {
                     type="url"
                     label={`Link ${index + 1}`}
                     value={link}
-                    placeholder="https://www.youtube.com/watch?v=XXXXXXXXXXX"
                     onChange={(event) => handleYoutubeLinkChange(index, event.target.value)}
                     error={Boolean(youtubeLinkErrors[index])}
-                    helperText={youtubeLinkErrors[index] || ' '}
+                    helperText={youtubeLinkErrors[index] || undefined}
                     className="youtubeLinkDsInput"
                   />
                 </div>

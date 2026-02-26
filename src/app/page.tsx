@@ -185,6 +185,7 @@ const pageStyle = {
 
 const MAX_PHOTOS = 120;
 const ACCEPT_FILE_TYPES = '.jpg,.jpeg,.png,.svg,.heif,.heic,image/*';
+const PHOTOS_STORAGE_KEY = 'yachtway-upload-photos-step-state';
 let nextPhotoId = 0;
 
 const createPhotoId = () => {
@@ -316,13 +317,55 @@ export default function Page() {
   }, [photos]);
 
   useEffect(() => {
-    const objectUrls = objectUrlsRef.current;
+    if (typeof window === 'undefined') {
+      return;
+    }
 
-    return () => {
-      objectUrls.forEach((url) => URL.revokeObjectURL(url));
-      objectUrls.clear();
-    };
+    const storedValue = window.sessionStorage.getItem(PHOTOS_STORAGE_KEY);
+    if (!storedValue) {
+      return;
+    }
+
+    try {
+      const parsed = JSON.parse(storedValue) as unknown;
+      if (!Array.isArray(parsed)) {
+        return;
+      }
+
+      const restoredPhotos = parsed.filter((item): item is PhotoCard => {
+        if (!item || typeof item !== 'object') {
+          return false;
+        }
+
+        const candidate = item as Partial<PhotoCard>;
+        return (
+          typeof candidate.id === 'string' &&
+          typeof candidate.name === 'string' &&
+          typeof candidate.src === 'string' &&
+          typeof candidate.rotation === 'number' &&
+          Array.isArray(candidate.categories)
+        );
+      });
+
+      restoredPhotos.forEach((photo) => {
+        if (photo.src.startsWith('blob:')) {
+          objectUrlsRef.current.add(photo.src);
+        }
+      });
+
+      setPhotos(restoredPhotos);
+    } catch {
+      // Ignore malformed session payload.
+    }
   }, []);
+
+  useEffect(() => {
+    if (typeof window === 'undefined') {
+      return;
+    }
+
+    window.sessionStorage.setItem(PHOTOS_STORAGE_KEY, JSON.stringify(photos));
+  }, [photos]);
 
   useEffect(() => {
     selectedIdsRef.current = selectedPhotoIds;
