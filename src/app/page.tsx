@@ -460,6 +460,16 @@ export default function Page() {
     return Array.from(map.values());
   }, [categoryDetailId, categoryTargetPhotoIds, detailCategoryPhotos, photos]);
 
+  const resetMarqueeState = useCallback(() => {
+    isMarqueeSelectingRef.current = false;
+    marqueeStartRef.current = null;
+    marqueeArmedRef.current = false;
+    marqueeStartPointRef.current = null;
+    marqueeSelectionModeRef.current = 'replace';
+    marqueeBaselineSelectionRef.current = new Set();
+    setSelectionBox(null);
+  }, []);
+
   const updateMarqueeSelection = useCallback((startX: number, startY: number, currentX: number, currentY: number) => {
     const grid = photoGridRef.current;
     if (!grid) {
@@ -580,6 +590,11 @@ export default function Page() {
 
   useEffect(() => {
     const handlePointerMove = (event: PointerEvent) => {
+      if ((isMarqueeSelectingRef.current || marqueeArmedRef.current) && event.buttons === 0) {
+        resetMarqueeState();
+        return;
+      }
+
       if (!isMarqueeSelectingRef.current) {
         // Arm on pointer down; activate only after a small drag so normal clicks still work.
         if (!marqueeArmedRef.current || !marqueeStartPointRef.current) return;
@@ -613,18 +628,11 @@ export default function Page() {
     const handlePointerUp = () => {
       // If user released before dragging enough, just disarm and let normal click happen.
       if (!isMarqueeSelectingRef.current) {
-        marqueeArmedRef.current = false;
-        marqueeStartPointRef.current = null;
+        resetMarqueeState();
         return;
       }
 
-      isMarqueeSelectingRef.current = false;
-      marqueeStartRef.current = null;
-      marqueeArmedRef.current = false;
-      marqueeStartPointRef.current = null;
-      marqueeSelectionModeRef.current = 'replace';
-      marqueeBaselineSelectionRef.current = new Set();
-      setSelectionBox(null);
+      resetMarqueeState();
 
       requestAnimationFrame(() => {
         suppressCardClickRef.current = false;
@@ -638,7 +646,7 @@ export default function Page() {
       window.removeEventListener('pointermove', handlePointerMove);
       window.removeEventListener('pointerup', handlePointerUp);
     };
-  }, [updateMarqueeSelection]);
+  }, [resetMarqueeState, updateMarqueeSelection]);
 
   const appendFiles = (files: FileList | File[]) => {
     const acceptedFiles = Array.from(files).filter(isAcceptedImage);
@@ -705,7 +713,7 @@ export default function Page() {
     // Don't start lasso when user interacts with UI controls
     if (
       target.closest(
-        "button, a, input, textarea, select, option, [role='button'], [data-no-marquee='true']"
+        "button, a, input, textarea, select, option, [role='button'], [data-no-marquee='true'], [draggable='true']"
       )
     ) {
       return;
@@ -766,6 +774,7 @@ export default function Page() {
     }
 
     clearPhotoSelection();
+    resetMarqueeState();
     suppressCardClickRef.current = true;
     dragSourcePhotoIdRef.current = photoId;
     event.dataTransfer.effectAllowed = 'move';
@@ -786,6 +795,7 @@ export default function Page() {
 
   const handleCardDrop = (event: DragEvent<HTMLElement>, targetPhotoId: string) => {
     event.preventDefault();
+    resetMarqueeState();
 
     const sourcePhotoId = dragSourcePhotoIdRef.current || draggedPhotoId || event.dataTransfer.getData('text/plain');
     if (!sourcePhotoId || sourcePhotoId === targetPhotoId) {
@@ -1172,6 +1182,7 @@ export default function Page() {
                         onDragOver={(event) => handleCardDragOver(event, photo.id)}
                         onDrop={(event) => handleCardDrop(event, photo.id)}
                         onDragEnd={() => {
+                          resetMarqueeState();
                           setDraggedPhotoId(null);
                           dragSourcePhotoIdRef.current = null;
                           requestAnimationFrame(() => {
