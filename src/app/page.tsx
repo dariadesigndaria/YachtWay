@@ -2,6 +2,7 @@
 
 import type { ChangeEvent, CSSProperties, DragEvent, PointerEvent as ReactPointerEvent } from 'react';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useRouter } from 'next/navigation';
 
 import { Button } from '@yachtway/design-system/src/components/common/button';
 import {
@@ -250,6 +251,7 @@ const getDropdownItemsForPhotoIndex = (photoIndex: number): DropdownItem[] => {
 };
 
 export default function Page() {
+  const router = useRouter();
   const [photos, setPhotos] = useState<PhotoCard[]>([]);
   const [isDropActive, setIsDropActive] = useState(false);
   const [draggedPhotoId, setDraggedPhotoId] = useState<string | null>(null);
@@ -1346,8 +1348,9 @@ export default function Page() {
               className="nextButton"
               endIcon={<SpriteIcon name="arrow_right" className="navIcon" />}
               data-node-id="4452:111297"
+              onClick={() => router.push('/upload-videos')}
             >
-              Save &amp; Next
+              Save and continue
             </Button>
           </footer>
         </div>

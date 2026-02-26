@@ -332,6 +332,12 @@ button {
   margin: 0;
 }
 
+.uploadDescriptionText {
+  color: #3c3c46;
+  font-size: 16px;
+  line-height: 24px;
+}
+
 .dropZone {
   align-items: center;
   border: 1px dashed #4b0ea3;
@@ -378,6 +384,87 @@ button {
   line-height: 20px;
   margin: 0;
   text-align: center;
+}
+
+.addVideoMenuWrap {
+  position: relative;
+}
+
+.addVideoButton {
+  align-items: center;
+  background: #fff;
+  border: 1px solid #e6dcf4;
+  border-radius: 4px;
+  color: #4b0ea3;
+  cursor: pointer;
+  display: inline-flex;
+  font-size: 14px;
+  font-weight: 500;
+  gap: 6px;
+  height: 36px;
+  justify-content: center;
+  line-height: 20px;
+  padding: 0 16px;
+}
+
+.addVideoButton:hover {
+  background: #fcfafe;
+}
+
+.addVideoButton:disabled {
+  border-color: #f1e8ff;
+  color: #a990d2;
+  cursor: not-allowed;
+}
+
+.addVideoButtonIcon,
+.addVideoChevronIcon {
+  height: 20px;
+  width: 20px;
+}
+
+.addVideoMenu {
+  background: #fff;
+  border-radius: 4px;
+  box-shadow: 0 4px 32px 4px rgb(140 140 140 / 24%);
+  display: flex;
+  flex-direction: column;
+  left: 50%;
+  min-width: 217px;
+  overflow: hidden;
+  position: absolute;
+  top: calc(100% + 8px);
+  transform: translateX(-50%);
+  z-index: 50;
+}
+
+.addVideoMenuItem {
+  align-items: center;
+  background: #fff;
+  border: 0;
+  color: #3c3c46;
+  cursor: pointer;
+  display: inline-flex;
+  font-size: 14px;
+  font-weight: 500;
+  gap: 6px;
+  height: 40px;
+  justify-content: flex-start;
+  line-height: 20px;
+  padding: 8px;
+  text-align: left;
+  width: 100%;
+}
+
+.addVideoMenuItem:hover {
+  background: #f8f8f9;
+}
+
+.addVideoMenuItemIcon {
+  color: #727279;
+  flex-shrink: 0;
+  height: 24px;
+  width: 24px;
 }
 
 .bulkPinnedBackdrop {
@@ -575,6 +662,18 @@ button {
   padding: 8px;
 }
 
+.videoCardTitle {
+  color: #2f2f39;
+  flex: 1;
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 20px;
+  margin: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 .addCategoryButton {
   align-items: center;
   background: transparent;
@@ -730,6 +829,26 @@ button {
   pointer-events: auto;
   position: absolute;
   width: 28px;
+}
+
+.videoPlayButton {
+  align-items: center;
+  backdrop-filter: blur(8px);
+  background: rgb(34 34 34 / 40%);
+  border: 1px solid rgb(255 255 255 / 30%);
+  border-radius: 9999px;
+  bottom: auto;
+  color: #fff;
+  height: 48px;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: 48px;
+}
+
+.videoPlayIcon {
+  height: 24px;
+  width: 24px;
 }
 
 .photoHoverActionIcon {
@@ -987,6 +1106,225 @@ button {
 .previewNavIcon {
   height: 24px;
   width: 24px;
+}
+
+.videoPreviewDialog {
+  align-items: center;
+  display: flex;
+  justify-content: center;
+  min-width: 0;
+}
+
+.videoPreviewDialog .previewCloseButton {
+  position: absolute;
+  right: 16px;
+  top: 16px;
+  z-index: 6;
+}
+
+.videoPreviewPlayer,
+.videoPreviewEmbed {
+  background: #000;
+  border: 0;
+  border-radius: 6px;
+  height: min(80vh, 760px);
+  max-width: min(1260px, calc(100vw - 120px));
+  width: min(1260px, calc(100vw - 120px));
+}
+
+.youtubeModalOverlay {
+  align-items: center;
+  background: rgb(47 47 57 / 60%);
+  display: flex;
+  inset: 0;
+  justify-content: center;
+  padding: 24px;
+  position: fixed;
+  z-index: 72;
+}
+
+.youtubeModal {
+  background: #fff;
+  border-radius: 4px;
+  box-shadow: 0 4px 32px rgb(140 140 140 / 24%);
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  min-height: 440px;
+  overflow: hidden;
+  padding: 32px 32px 0;
+  position: relative;
+  width: min(540px, 100%);
+}
+
+.youtubeModalClose {
+  align-items: center;
+  background: transparent;
+  border: 0;
+  color: #61616b;
+  cursor: pointer;
+  display: inline-flex;
+  height: 40px;
+  justify-content: center;
+  position: absolute;
+  right: 12px;
+  top: 12px;
+  width: 40px;
+}
+
+.youtubeModalCloseIcon {
+  height: 24px;
+  width: 24px;
+}
+
+.youtubeModalHeader {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.youtubeModalTitle {
+  color: #2f2f39;
+  font-family: var(--font-poppins), sans-serif;
+  font-size: 32px;
+  font-weight: 500;
+  line-height: 36px;
+  margin: 0;
+}
+
+.youtubeModalSubtitle {
+  color: #3c3c46;
+  font-size: 16px;
+  line-height: 24px;
+  margin: 0;
+}
+
+.youtubeModalBody {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 16px;
+  min-height: 0;
+  overflow-y: auto;
+}
+
+.youtubeLinkField {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.youtubeLinkLabel {
+  color: #727279;
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 18px;
+  margin-bottom: -2px;
+  margin-left: 12px;
+  width: fit-content;
+}
+
+.youtubeLinkInput {
+  border: 1px solid #dcdcde;
+  border-radius: 2px;
+  color: #2f2f39;
+  font-size: 14px;
+  font-weight: 500;
+  height: 40px;
+  line-height: 20px;
+  outline: none;
+  padding: 8px 12px;
+}
+
+.youtubeLinkInput:focus {
+  border-color: #7e52be;
+}
+
+.youtubeLinkInput.hasError {
+  border-color: #dc362e;
+}
+
+.youtubeLinkError {
+  color: #dc362e;
+  font-size: 12px;
+  line-height: 18px;
+  margin-top: 4px;
+}
+
+.youtubeAddLinkButton {
+  align-items: center;
+  background: transparent;
+  border: 0;
+  color: #4b0ea3;
+  cursor: pointer;
+  display: inline-flex;
+  font-size: 14px;
+  font-weight: 500;
+  gap: 6px;
+  height: 24px;
+  line-height: 20px;
+  padding: 0;
+  width: fit-content;
+}
+
+.youtubeAddLinkButton:disabled {
+  color: #a6a6ab;
+  cursor: not-allowed;
+}
+
+.youtubeAddLinkIcon {
+  height: 20px;
+  width: 20px;
+}
+
+.youtubeModalFooter {
+  align-items: center;
+  background: #fff;
+  box-shadow: 0 4px 32px 0 rgb(140 140 140 / 24%);
+  display: flex;
+  justify-content: space-between;
+  margin-left: -32px;
+  margin-top: auto;
+  padding: 12px 32px;
+  width: calc(100% + 64px);
+}
+
+.youtubeCancelButton {
+  background: #fff;
+  border: 1px solid #22222d;
+  border-radius: 4px;
+  color: #2f2f39;
+  cursor: pointer;
+  font-size: 16px;
+  font-weight: 500;
+  height: 40px;
+  line-height: 24px;
+  min-width: 94px;
+  padding: 0 20px;
+}
+
+.youtubeSubmitButton {
+  background: #4b0ea3;
+  border: 1px solid #ffffff33;
+  border-radius: 4px;
+  color: #fff;
+  cursor: pointer;
+  font-size: 16px;
+  font-weight: 500;
+  height: 40px;
+  line-height: 24px;
+  min-width: 127px;
+  padding: 0 20px;
+}
+
+.youtubeSubmitButton:hover {
+  background: #5a1bb4;
+}
+
+.youtubeSubmitButton:disabled {
+  background: #ccb9e7;
+  border-color: #ccb9e7;
+  cursor: not-allowed;
 }
 
 .categoryModalOverlay {
@@ -1422,6 +1760,12 @@ button {
     width: 100%;
   }
 
+  .videoPreviewPlayer,
+  .videoPreviewEmbed {
+    max-width: min(1100px, calc(100vw - 96px));
+    width: min(1100px, calc(100vw - 96px));
+  }
+
   .previewDialog {
     min-width: 0;
   }
@@ -1505,6 +1849,23 @@ button {
     width: 100%;
   }
 
+  .youtubeModal {
+    min-height: 0;
+    padding: 20px 16px 0;
+    width: 100%;
+  }
+
+  .youtubeModalTitle {
+    font-size: 28px;
+    line-height: 32px;
+  }
+
+  .youtubeModalFooter {
+    margin-left: -16px;
+    padding: 12px 16px;
+    width: calc(100% + 32px);
+  }
+
   .categoryModalTitle {
     line-height: 32px;
   }
@@ -1557,5 +1918,16 @@ button {
 
   .previewNavButton {
     top: calc(50% + 16px);
+  }
+
+  .videoPreviewDialog .previewCloseButton {
+    right: 8px;
+    top: 8px;
+  }
+
+  .videoPreviewPlayer,
+  .videoPreviewEmbed {
+    height: min(72vh, 520px);
+    width: min(96vw, 760px);
   }
 }
