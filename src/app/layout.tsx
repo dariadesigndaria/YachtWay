@@ -27,9 +27,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body
-        className={`${figtree.variable} ${poppins.variable} ${redHatDisplay.variable}`}
-      >
+      <head>
         <script
           dangerouslySetInnerHTML={{
             __html: `(function (m, a, z, e) {
@@ -60,6 +58,10 @@ export default function RootLayout({
 })(window, document, 'https://snippet.maze.co/maze-universal-loader.js', '825db70f-46ee-4312-8128-cc061a22b3aa');`,
           }}
         />
+      </head>
+      <body
+        className={`${figtree.variable} ${poppins.variable} ${redHatDisplay.variable}`}
+      >
         {children}
       </body>
     </html>
