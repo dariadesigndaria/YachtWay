@@ -1092,7 +1092,11 @@ export default function Page() {
 
             <div className="uploadMeta">
               <p className="uploadCount">{uploadedCountText}</p>
-              <p className="uploadHint">Drag images to reorder. Click to select multiple for bulk actions.</p>
+              <p className="uploadHint">
+                Drag images to reorder. Click to select multiple for bulk actions.
+                <br />
+                Use exterior images as the cover to attract more buyers.
+              </p>
             </div>
 
             <div
