@@ -19,7 +19,7 @@ const assets = {
 };
 
 type StepState = 'done' | 'active' | 'disabled';
-type DropdownAction = 'set-cover' | 'move-top' | 'rotate' | 'edit' | 'delete';
+type DropdownAction = 'set-cover' | 'move-top' | 'rotate' | 'delete';
 
 type SidebarStep = {
   icon: SpriteIconNames;
@@ -95,7 +95,6 @@ const dropdownItems: DropdownItem[] = [
     icon: 'arrows_clockwise_outline',
     label: 'Rotate Image',
   },
-  { type: 'action', action: 'edit', icon: 'pen_outline', label: 'Edit Image' },
   { type: 'divider' },
   {
     type: 'action',
@@ -962,11 +961,6 @@ export default function Page() {
     clearPhotoSelection();
     setMenuPhotoId(null);
 
-    if (action === 'edit') {
-      openPreview(photoId);
-      return;
-    }
-
     if (action === 'delete') {
       setPhotos((prev) => {
         const target = prev.find((photo) => photo.id === photoId);
@@ -1156,15 +1150,6 @@ export default function Page() {
                     <button
                       type="button"
                       className="bulkActionButton photoInteractive"
-                      onClick={clearPhotoSelection}
-                    >
-                      <SpriteIcon name="pen_outline" className="bulkActionIcon" />
-                      Edit Images
-                    </button>
-
-                    <button
-                      type="button"
-                      className="bulkActionButton photoInteractive"
                       onClick={() => openCategoryModal(selectedPhotoIdsOrdered)}
                     >
                       <SpriteIcon name="stuck_outline" className="bulkActionIcon" />
@@ -1258,7 +1243,13 @@ export default function Page() {
                             aria-label="Open photo actions"
                             onClick={(event) => {
                               event.stopPropagation();
-                              clearPhotoSelection();
+                              setSelectedPhotoIds((prev) => {
+                                if (prev.size === 1 && prev.has(photo.id)) {
+                                  return prev;
+                                }
+
+                                return new Set([photo.id]);
+                              });
                               setMenuPhotoId((prev) => (prev === photo.id ? null : photo.id));
                             }}
                           >
@@ -1396,18 +1387,6 @@ export default function Page() {
               </span>
 
               <div className="previewActions">
-                <button
-                  type="button"
-                  className="previewActionButton isDisabled"
-                  disabled
-                  aria-disabled="true"
-                >
-                  <SpriteIcon name="pen_outline" className="previewActionIcon" />
-                  Edit Image
-                </button>
-
-                <span className="previewActionDivider" aria-hidden="true" />
-
                 <button
                   type="button"
                   className="previewActionButton"

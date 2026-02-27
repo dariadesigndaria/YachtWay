@@ -1078,7 +1078,13 @@ export default function Page() {
                               aria-label="Open video actions"
                               onClick={(event) => {
                                 event.stopPropagation();
-                                clearVideoSelection();
+                                setSelectedVideoIds((prev) => {
+                                  if (prev.size === 1 && prev.has(video.id)) {
+                                    return prev;
+                                  }
+
+                                  return new Set([video.id]);
+                                });
                                 setMenuVideoId((prev) => (prev === video.id ? null : video.id));
                               }}
                             >
