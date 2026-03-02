@@ -1090,14 +1090,22 @@ export default function Page() {
               </div>
             </header>
 
-            <div className="uploadMeta">
-              <p className="uploadCount">{uploadedCountText}</p>
-              <p className="uploadHint">
-                Drag images to reorder. Click to select multiple for bulk actions.
-                <br />
-                Use exterior images as the cover to attract more buyers.
-              </p>
-            </div>
+            {photos.length === 0 ? (
+              <div className="uploadMeta">
+                <p className="uploadHint uploadDescriptionText">
+                  You can upload up to <strong>120</strong> images per listing.
+                </p>
+              </div>
+            ) : (
+              <div className="uploadMeta">
+                <p className="uploadCount">{uploadedCountText}</p>
+                <p className="uploadHint">
+                  Drag images to reorder. Click to select multiple for bulk actions.
+                  <br />
+                  Use exterior images as the cover to attract more buyers.
+                </p>
+              </div>
+            )}
 
             <div
               className={`dropZone ${isDropActive ? 'isDragActive' : ''}`}
@@ -1204,7 +1212,11 @@ export default function Page() {
                             suppressCardClickRef.current = false;
                           });
                         }}
-                        onClick={(event) => {
+                        onPointerUp={(event) => {
+                          if (event.button !== 0) {
+                            return;
+                          }
+
                           const target = event.target as HTMLElement;
                           if (suppressCardClickRef.current || isMarqueeSelectingRef.current || marqueeArmedRef.current) {
                             return;
