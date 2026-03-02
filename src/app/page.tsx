@@ -1260,7 +1260,7 @@ export default function Page() {
                             onClick={(event) => {
                               event.stopPropagation();
                               setSelectedPhotoIds((prev) => {
-                                if (prev.size === 1 && prev.has(photo.id)) {
+                                if (prev.size === 0 || (prev.size === 1 && prev.has(photo.id))) {
                                   return prev;
                                 }
 
