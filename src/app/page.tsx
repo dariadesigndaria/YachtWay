@@ -1164,8 +1164,8 @@ export default function Page() {
                       className="bulkActionButton photoInteractive"
                       onClick={() => openCategoryModal(selectedPhotoIdsOrdered)}
                     >
-                      <SpriteIcon name="stuck_outline" className="bulkActionIcon" />
-                      + Add Category
+                      <SpriteIcon name="plus_outline" className="bulkActionIcon" />
+                      Add Category
                     </button>
 
                     <button
