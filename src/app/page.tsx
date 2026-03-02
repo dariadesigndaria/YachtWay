@@ -1165,7 +1165,7 @@ export default function Page() {
                       onClick={() => openCategoryModal(selectedPhotoIdsOrdered)}
                     >
                       <SpriteIcon name="stuck_outline" className="bulkActionIcon" />
-                      Assign Category
+                      + Add Category
                     </button>
 
                     <button
